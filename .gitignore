@@ -1,93 +1,82 @@
 ##############################################
-# 1. Archivos Ignorados por el Sistema Operativo (OS)
+# 1. Directorios y Archivos de Visual Studio / .NET
 ##############################################
 
-# macOS
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-Icon?
-ehthumbs.db
+# Carpetas de binarios y resultados de compilación
+[Bb]in/
+[Oo]bj/
 
-# Windows
-Thumbs.db
-Thumbs.db:encryptable
-ehthumbs.db
-desktop.ini
-$RECYCLE.BIN/
+# Paquetes de NuGet y caché
+# Carpeta de paquetes de Visual Studio (puede no ser necesaria si usas dotnet restore)
+packages/
+# Archivo de restauración de paquetes (dotnet restore)
+*.nupkg
+# Carpeta de caché de paquetes (si se usan paquetes locales)
+.nuget/
 
-# Linux
-*~
-.nfs
-.fuse_hidden*
+# Archivos de depuración y símbolos
+*.pdb
+*.suo
+*.user
+*.useros
+*.log
+*.rpt
+*.bak
+
+# Archivos de pruebas
+TestResults/
+.vspscc
+.vssscc
+
+# Archivos generados por Visual Studio
+*.vstemplate
+_ReSharper.*/
+*.[Pp]ublish/
+Generated_Code/
+
+# Archivos de Entity Framework Migrations
+[Mm]igrations/*.Designer.cs
+[Mm]igrations/*.resx
 
 ##############################################
-# 2. Entorno de Desarrollo Integrado (IDE)
+# 2. Configuración de IDEs (Visual Studio y VS Code)
 ##############################################
+
+# --- Visual Studio (Versiones recientes) ---
+.vs/
+*.vsp
+*.log
+*.tlog
+*.trx
+
+# Archivos de solución y proyecto temporales/usuarios
+*.sln.docstates
+*.sln.ide
+*.csproj.user
 
 # --- Visual Studio Code (VS Code) ---
 .vscode/
 
-# --- JetBrains (IntelliJ, PyCharm, WebStorm, etc.) ---
-.idea/
-*.iml
-*.iws
-*.ipr
-
-# --- Eclipse ---
-.settings/
-.project
-.classpath
-*.pydevproject
-
-# --- Otros Editores Comunes ---
-# Sublime Text
-*.sublime-project
-*.sublime-workspace
-
-# Vim
-*.swp
-*.bak
-*~
-
 ##############################################
-# 3. Construcción y Dependencias (Build & Dependencies)
+# 3. Archivos del Sistema Operativo
 ##############################################
 
-# Node.js
-# La carpeta de dependencias:
-node_modules/
+# macOS
+.DS_Store
 
-# Archivos de logs y estado:
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.npm
-.yarn-cache
+# Windows
+Thumbs.db
+desktop.ini
 
-# Salida de la construcción:
-dist/
-build/
-out/
-tmp/
+##############################################
+# 4. Archivos de Configuración y Entorno
+##############################################
 
-# Python
-# Entornos virtuales:
-venv/
-.venv/
-env/
-.env/
+# Archivos de variables de entorno y secretos (si los usas)
+.env
+*.json.local
 
-# Cache de Python:
-__pycache__/
-*.pyc
-*.pyd
-
-# Archivos de configuración de paquetes:
-*.egg-info/
-.coverage
-
-# Java
-# Directorios de compilación/sal
+# Archivos de socket y temporales (cubre "socket sy todo eso")
+*.tmp
+*.temp
+*.sock
