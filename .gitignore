@@ -1,0 +1,93 @@
+##############################################
+# 1. Archivos Ignorados por el Sistema Operativo (OS)
+##############################################
+
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.nfs
+.fuse_hidden*
+
+##############################################
+# 2. Entorno de Desarrollo Integrado (IDE)
+##############################################
+
+# --- Visual Studio Code (VS Code) ---
+.vscode/
+
+# --- JetBrains (IntelliJ, PyCharm, WebStorm, etc.) ---
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# --- Eclipse ---
+.settings/
+.project
+.classpath
+*.pydevproject
+
+# --- Otros Editores Comunes ---
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.bak
+*~
+
+##############################################
+# 3. Construcción y Dependencias (Build & Dependencies)
+##############################################
+
+# Node.js
+# La carpeta de dependencias:
+node_modules/
+
+# Archivos de logs y estado:
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-cache
+
+# Salida de la construcción:
+dist/
+build/
+out/
+tmp/
+
+# Python
+# Entornos virtuales:
+venv/
+.venv/
+env/
+.env/
+
+# Cache de Python:
+__pycache__/
+*.pyc
+*.pyd
+
+# Archivos de configuración de paquetes:
+*.egg-info/
+.coverage
+
+# Java
+# Directorios de compilación/sal
