@@ -1,0 +1,136 @@
+﻿<Window x:Class="ClientWPF.Views.LoginView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Login" Height="550" Width="400"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None" 
+        AllowsTransparency="True" 
+        Background="Transparent"
+        MouseDown="Window_MouseDown">
+
+    <Window.Resources>
+        <Color x:Key="BaseColor">#EBECF0</Color>
+        <SolidColorBrush x:Key="BaseBrush" Color="{StaticResource BaseColor}"/>
+        <SolidColorBrush x:Key="TextBrush" Color="#5A667F"/>
+        <SolidColorBrush x:Key="AccentBrush" Color="#4D7CFE"/>
+        <Style x:Key="NeuInputStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="15"/>
+            <Setter Property="Background" Value="{StaticResource BaseBrush}"/>
+            <Setter Property="Height" Value="50"/>
+            <Setter Property="Margin" Value="0,0,0,25"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="#FFFFFF" Direction="135" ShadowDepth="2" BlurRadius="2" Opacity="1"/>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="BorderBrush" Value="#D1D9E6"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <Style x:Key="NeuPrimaryButton" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource BaseBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Height" Value="50"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Border x:Name="shadow" CornerRadius="25" Background="{TemplateBinding Background}">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="#A6ABBD" Direction="315" ShadowDepth="5" BlurRadius="10" Opacity="0.5"/>
+                                </Border.Effect>
+                            </Border>
+
+                            <Border x:Name="border" CornerRadius="25" Background="{TemplateBinding Background}" BorderThickness="0">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource AccentBrush}"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="RenderTransform">
+                                    <Setter.Value>
+                                        <ScaleTransform ScaleX="0.95" ScaleY="0.95" CenterX="100" CenterY="25"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="TextButton" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#888"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="Transparent">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="#FF5555"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Border Background="{StaticResource BaseBrush}" CornerRadius="30" Padding="20">
+        <Border.Effect>
+            <DropShadowEffect Color="#000000" Direction="270" ShadowDepth="10" BlurRadius="40" Opacity="0.2"/>
+        </Border.Effect>
+
+        <Grid>
+            <Border Background="{StaticResource BaseBrush}" CornerRadius="25" Width="320" VerticalAlignment="Center" Padding="25">
+                <Border.Effect>
+                    <DropShadowEffect Color="#A6ABBD" Direction="315" ShadowDepth="8" BlurRadius="15" Opacity="0.4"/>
+                </Border.Effect>
+
+                <StackPanel>
+
+                    <TextBlock Text="LOGIN" FontSize="16" FontWeight="Normal" Foreground="#888" HorizontalAlignment="Center" Margin="0,0,0,5"/>
+                    <TextBlock Text="DISTRIBUIDAS" FontSize="24" FontWeight="Bold" Foreground="{StaticResource TextBrush}" HorizontalAlignment="Center" Margin="0,0,0,40"/>
+
+                    <TextBlock Text="Usuario" Foreground="{StaticResource TextBrush}" FontSize="12" Margin="15,0,0,5" FontWeight="SemiBold"/>
+                    <Border Style="{StaticResource NeuInputStyle}">
+                        <TextBox x:Name="txtUser" 
+                                 Background="Transparent" BorderThickness="0" 
+                                 VerticalContentAlignment="Center" Padding="15,0"
+                                 FontSize="14" Foreground="#5A667F"/>
+                    </Border>
+
+                    <TextBlock Text="Contraseña" Foreground="{StaticResource TextBrush}" FontSize="12" Margin="15,0,0,5" FontWeight="SemiBold"/>
+                    <Border Style="{StaticResource NeuInputStyle}">
+                        <PasswordBox x:Name="txtPass" 
+                                     Background="Transparent" BorderThickness="0" 
+                                     VerticalContentAlignment="Center" Padding="15,0"
+                                     FontSize="14" Foreground="#5A667F"/>
+                    </Border>
+
+                    <Button x:Name="btnIngresar" Content="INICIAR SESIÓN" 
+                            Style="{StaticResource NeuPrimaryButton}"
+                            Margin="0,20,0,20"
+                            Click="BtnLogin_Click"/>
+
+                    <Button Content="Salir del Sistema" 
+                            Style="{StaticResource TextButton}"
+                            Click="BtnSalir_Click"
+                            FontSize="12"/>
+
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

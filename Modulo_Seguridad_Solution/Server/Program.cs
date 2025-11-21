@@ -4,7 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
-using Microsoft.Extensions.Configuration; // NuGet: Microsoft.Extensions.Configuration.Json
+using Microsoft.Extensions.Configuration;
 using BussinessAccessLayer;
 using Entity;
 
@@ -19,16 +19,14 @@ class Program
 
         IConfiguration config = builder.Build();
 
-        // 2. LEER TUS VARIABLES EXACTAS
-        // Nota el uso de los dos puntos (:) para navegar en el JSON
-        string ipStr = config["ConfiguracionServer_Seguridad:Ip"];
-        int puerto = int.Parse(config["ConfiguracionServer_Seguridad:Puerto"]);
-        string cadenaConexion = config["ConnectionStrings:OracleDB"];
+        // 2. LEER VARIABLES
+        string ipStr = config["ConfiguracionServer_Seguridad:Ip"]!;
+        int puerto = int.Parse(config["ConfiguracionServer_Seguridad:Puerto"]!);
+        string cadenaConexion = config["ConnectionStrings:OracleDB"]!;
 
-        // Validación rápida por si el JSON está mal
         if (string.IsNullOrEmpty(ipStr) || string.IsNullOrEmpty(cadenaConexion))
         {
-            Console.WriteLine("ERROR CRÍTICO: No se pudo leer la IP o la Cadena de Conexión del JSON.");
+            Console.WriteLine("ERROR CRÍTICO: Configuración incompleta en appsettings.json.");
             Console.ReadKey();
             return;
         }
@@ -41,7 +39,6 @@ class Program
         Console.WriteLine("===================================");
         Console.WriteLine($"[MODULO SEGURIDAD] INICIADO");
         Console.WriteLine($"Escuchando en: {ipStr}:{puerto}");
-        Console.WriteLine($"Conectando a BD con Wallet en: C:\\OracleWallet"); // Solo informativo
         Console.WriteLine("===================================");
 
         // Inyectamos la cadena a la capa de Negocio -> Datos
@@ -52,7 +49,7 @@ class Program
             try
             {
                 TcpClient client = server.AcceptTcpClient();
-                // Procesamos la petición
+                // Procesamos la petición (Idealmente en un Task.Run para concurrencia)
                 ManejarCliente(client, servicio);
             }
             catch (Exception ex)
@@ -66,7 +63,7 @@ class Program
     {
         using (NetworkStream stream = client.GetStream())
         {
-            byte[] buffer = new byte[4096]; 
+            byte[] buffer = new byte[4096];
             int bytesRead = stream.Read(buffer, 0, buffer.Length);
 
             if (bytesRead > 0)
@@ -78,26 +75,53 @@ class Program
 
                 try
                 {
-                    // Deserializar comando base
-                    var peticionBase = JsonSerializer.Deserialize<PeticionBase>(jsonRecibido);
+                    // Usamos JsonDocument para leer solo el comando sin deserializar todo aún
+                    using (JsonDocument doc = JsonDocument.Parse(jsonRecibido))
+                    {
+                        string comando = doc.RootElement.GetProperty("Comando").GetString();
 
-                    if (peticionBase != null && peticionBase.Comando == "LOGIN")
-                    {
-                        var request = JsonSerializer.Deserialize<LoginRequest>(jsonRecibido);
-                        var response = servicio.ValidarUsuario(request);
-                        jsonRespuesta = JsonSerializer.Serialize(response);
-                    }
-                    else
-                    {
-                        jsonRespuesta = JsonSerializer.Serialize(new RespuestaBase { Exito = false, Mensaje = "Comando no reconocido" });
+                        // --- SWITCH DE COMANDOS ---
+                        switch (comando)
+                        {
+                            case "LOGIN":
+                                var reqLogin = JsonSerializer.Deserialize<LoginRequest>(jsonRecibido);
+                                var respLogin = servicio.ValidarUsuario(reqLogin);
+                                jsonRespuesta = JsonSerializer.Serialize(respLogin);
+                                break;
+
+                            case "LISTAR_USUARIOS":
+                                // Este comando no trae payload, solo ejecutamos la lógica
+                                var respLista = servicio.ObtenerTodos();
+                                jsonRespuesta = JsonSerializer.Serialize(respLista);
+                                break;
+
+                            case "GUARDAR_USUARIO":
+                                var reqGuardar = JsonSerializer.Deserialize<UsuarioRequest>(jsonRecibido);
+                                // Asumimos que reqGuardar.Usuario trae los datos
+                                var respGuardar = servicio.GuardarUsuario(reqGuardar.Usuario);
+                                jsonRespuesta = JsonSerializer.Serialize(respGuardar);
+                                break;
+
+                            case "ELIMINAR_USUARIO":
+                                var reqEliminar = JsonSerializer.Deserialize<UsuarioRequest>(jsonRecibido);
+                                // Asumimos que reqEliminar.Usuario.UsuarioId trae el ID a borrar
+                                var respEliminar = servicio.EliminarUsuario(reqEliminar.Usuario.UsuarioId);
+                                jsonRespuesta = JsonSerializer.Serialize(respEliminar);
+                                break;
+
+                            default:
+                                jsonRespuesta = JsonSerializer.Serialize(new RespuestaBase { Exito = false, Mensaje = "Comando no reconocido: " + comando });
+                                break;
+                        }
                     }
                 }
                 catch (Exception ex)
                 {
-                    jsonRespuesta = JsonSerializer.Serialize(new RespuestaBase { Exito = false, Mensaje = "Error procesando JSON: " + ex.Message });
+                    Console.WriteLine("Error procesando JSON: " + ex.Message);
+                    jsonRespuesta = JsonSerializer.Serialize(new RespuestaBase { Exito = false, Mensaje = "Error Interno Server: " + ex.Message });
                 }
 
-                // Responder
+                // Responder al Cliente
                 byte[] msg = Encoding.UTF8.GetBytes(jsonRespuesta);
                 stream.Write(msg, 0, msg.Length);
                 Console.WriteLine($"[Respuesta Enviada]: {jsonRespuesta}");
