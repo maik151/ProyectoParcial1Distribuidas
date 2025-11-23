@@ -179,7 +179,75 @@ namespace BussinessAccessLayer
             catch (Exception ex) { return new RespuestaBase { Exito = false, Mensaje = ex.Message }; }
         }
 
+        public ReporteResponse ObtenerReporteGastos()
+        {
+            try
+            {
+                var datos = dal.ReporteGastosPorActivo();
+                return new ReporteResponse { Exito = true, ReporteGastos = datos };
+            }
+            catch (Exception ex)
+            {
+                return new ReporteResponse { Exito = false, Mensaje = ex.Message };
+            }
+        }
+
+        public ReporteResponse ObtenerReporteMatriz()
+        {
+            try
+            {
+                var datos = dal.ReporteMatrizDatos();
+                return new ReporteResponse { Exito = true, ReporteMatriz = datos };
+            }
+            catch (Exception ex)
+            {
+                return new ReporteResponse { Exito = false, Mensaje = ex.Message };
+            }
+        }
 
 
+        public RespuestaBase GuardarActivoLocal(long id, string nombre)
+        {
+            try
+            {
+                var entidad = new ActivoMantenimiento
+                {
+                    ActivoId = id,
+                    Codigo = "ACT-" + id, // Generamos un código dummy si no viene
+                    Nombre = nombre,
+                    FechaCompra = DateTime.Now // Fecha dummy
+                };
+
+                // 1. Intentar Modificar primero
+                bool exito = dal.ModificarActivo(entidad);
+
+                // 2. Si no existe, Insertar
+                if (!exito)
+                {
+                    exito = dal.InsertarActivo(entidad);
+                }
+
+                return new RespuestaBase
+                {
+                    Exito = exito,
+                    Mensaje = exito ? "Activo Local Guardado/Actualizado" : "Error al guardar activo"
+                };
+            }
+            catch (Exception ex) { return new RespuestaBase { Exito = false, Mensaje = ex.Message }; }
+        }
+
+        public RespuestaBase EliminarActivo(long id)
+        {
+            try
+            {
+                bool exito = dal.EliminarActivo(id);
+                return new RespuestaBase
+                {
+                    Exito = exito,
+                    Mensaje = exito ? "Activo eliminado" : "No se encontró o tiene mantenimientos asociados"
+                };
+            }
+            catch (Exception ex) { return new RespuestaBase { Exito = false, Mensaje = ex.Message }; }
+        }
     }
 }

@@ -95,6 +95,29 @@ class Program
                                 var respElimAct = servicio.EliminarActividad(reqElimAct.Actividad.Codigo);
                                 jsonRespuesta = JsonSerializer.Serialize(respElimAct);
                                 break;
+                            case "REPORTE_GASTOS":
+                                var respRep1 = servicio.ObtenerReporteGastos();
+                                jsonRespuesta = JsonSerializer.Serialize(respRep1);
+                                break;
+
+                            case "REPORTE_MATRIZ":
+                                var respRep2 = servicio.ObtenerReporteMatriz();
+                                jsonRespuesta = JsonSerializer.Serialize(respRep2);
+                                break;
+
+                            case "GUARDAR_ACTIVO":
+                                var reqActivo = JsonSerializer.Deserialize<ActivoRequest>(jsonRecibido);
+
+                                // Llamamos al método que ya tenías en el Gestor (GuardarActivoLocal)
+                                var respActivo = servicio.GuardarActivoLocal(reqActivo.Activo.Id, reqActivo.Activo.Nombre);
+
+                                jsonRespuesta = JsonSerializer.Serialize(respActivo);
+                                break;
+
+                            case "ELIMINAR_ACTIVO":
+                                // Si quisieras implementarlo a futuro
+                                jsonRespuesta = JsonSerializer.Serialize(new RespuestaBase { Exito = false, Mensaje = "Eliminar Activo no permitido por integridad." });
+                                break;
 
                             default:
                                 jsonRespuesta = JsonSerializer.Serialize(new RespuestaBase { Exito = false, Mensaje = "Comando desconocido en Mantenimiento" });
