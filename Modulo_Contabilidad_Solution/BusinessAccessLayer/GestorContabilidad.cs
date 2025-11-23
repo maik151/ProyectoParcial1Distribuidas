@@ -293,5 +293,75 @@ namespace BussinessAccessLayer
                 };
             }
         }
+
+        public RespuestaAsientoGuardado GuardarAsiento(AsientoRequest request)
+        {
+            // 1. VALIDACIÓN DE PARTIDA DOBLE (RF-CON-03)
+            decimal sumaDebe = request.Detalles?.Sum(d => d.ValorDebe) ?? 0;
+            decimal sumaHaber = request.Detalles?.Sum(d => d.ValorHaber) ?? 0;
+
+            if (sumaDebe != sumaHaber)
+            {
+                // CORRECCIÓN 1: Devolver el tipo de retorno esperado: RespuestaAsientoGuardado
+                return new RespuestaAsientoGuardado
+                {
+                    Exito = false,
+                    Mensaje = $"Error: El asiento NO cuadra. Debe ({sumaDebe:N2}) es diferente de Haber ({sumaHaber:N2})."
+                };
+            }
+
+            if (request.Detalles == null || request.Detalles.Count == 0)
+            {
+                // CORRECCIÓN 1: Devolver el tipo de retorno esperado: RespuestaAsientoGuardado
+                return new RespuestaAsientoGuardado
+                {
+                    Exito = false,
+                    Mensaje = "Error: El asiento no contiene líneas de detalle."
+                };
+            }
+
+            try
+            {
+                // Llama a la DAL para insertar la Cabecera y los Detalles
+                long idGenerado = dal.InsertarAsiento(request);
+
+                if (idGenerado > 0)
+                {
+                    // El asiento se guardó exitosamente.
+                    return new RespuestaAsientoGuardado
+                    {
+                        Exito = true,
+                        Mensaje = $"Asiento contable registrado correctamente. ID N° {idGenerado}.",
+                        Asiento = new RespuestaAsiento
+                        {
+                            Numero = (int)idGenerado,
+                            Fecha = request.Fecha,
+                            Observaciones = request.Glosa
+                        }
+                    };
+                }
+                else
+                {
+                    // Fallo capturado en la DAL (ej: error de conexión o ROLLBACK)
+                    return new RespuestaAsientoGuardado { Exito = false, Mensaje = "Fallo al insertar el asiento en la base de datos." };
+                }
+            }
+            catch (Exception ex)
+            {
+                // CORRECCIÓN 2: Asegurar que todas las rutas de acceso devuelvan un valor.
+                // Capturamos el error de la DAL y lo devolvemos en el formato correcto.
+                Console.WriteLine($"Error Gestor GuardarAsiento: {ex.Message}");
+
+                return new RespuestaAsientoGuardado
+                {
+                    Exito = false,
+                    Mensaje = $"Error inesperado al procesar el asiento: {ex.Message}"
+                };
+            }
+        }
+
+
+
+
     }
 }

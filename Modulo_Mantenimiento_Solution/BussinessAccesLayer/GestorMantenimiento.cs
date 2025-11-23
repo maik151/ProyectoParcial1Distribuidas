@@ -168,6 +168,40 @@ namespace BussinessAccessLayer
             try
             {
                 decimal totalGasto = cab.Detalles.Sum(d => d.Valor);
+
+                // 1. OBTENCIÓN DE DATOS PARA LA GLOSA COHERENTE
+                string primerActivo = cab.Detalles.FirstOrDefault()?.NombreActivo ?? "Activos Varios";
+                string primeraActividad = cab.Detalles.FirstOrDefault()?.NombreActividad ?? "Mantenimiento General";
+                int countDetalles = cab.Detalles.Count;
+
+                // Glosa Mejorada: Indica la acción principal, el primer activo y el total de líneas.
+                string glosaMejorada = $"Mantenimiento: {primeraActividad} sobre el activo '{primerActivo}' ({countDetalles} líneas). Ref. Comprobante Mantenimiento N° {cab.Numero}. Responsable: {cab.Responsable}.";
+
+
+                // 2. CONSTRUCCIÓN DE LOS DETALLES DEL ASIENTO (PARTIDA DOBLE)
+                var detallesAsiento = new List<DetalleAsiento>();
+
+                // 2.1. Lineas del DEBE (Gasto/Activos)
+                foreach (var detalleMantenimiento in cab.Detalles)
+                {
+                    detallesAsiento.Add(new DetalleAsiento
+                    {
+                        CuentaCodigo = "5", // Código '5' (Gastos)
+                        ValorDebe = detalleMantenimiento.Valor,
+                        ValorHaber = 0.00m
+                    });
+                }
+
+                // 2.2. Linea del HABER (Compensación/Pasivo)
+                detallesAsiento.Add(new DetalleAsiento
+                {
+                    CuentaCodigo = "2.1", // Código '2.1' (Cuentas por Pagar)
+                    ValorDebe = 0.00m,
+                    ValorHaber = totalGasto
+                });
+
+
+                // 3. CONSTRUCCIÓN DE LA PETICIÓN Y ENVÍO
                 var builder = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.json");
                 var config = builder.Build();
 
@@ -176,26 +210,53 @@ namespace BussinessAccessLayer
 
                 if (string.IsNullOrEmpty(ipCont)) return "(Sin config Contabilidad)";
 
+                long referenciaId;
+                if (!long.TryParse(cab.Numero, out referenciaId))
+                {
+                    // Manejo de error si el número no es un long válido
+                    return "(Error de Integración: El número de comprobante es inválido para ReferenciaOrigenId)";
+                }
+
                 var asientoReq = new AsientoRequest
                 {
                     Comando = "CREAR_ASIENTO",
-                    Fecha = DateTime.Now,
-                    Glosa = $"Gasto Mant. #{cab.Numero}",
+                    Fecha = cab.Fecha,
+                    Glosa = glosaMejorada,
                     Monto = totalGasto,
-                    ModuloOrigen = "MANTENIMIENTO"
+                    ModuloOrigen = "MANTENIMIENTO",
+                    Detalles = detallesAsiento,
+
+                    // CORRECCIÓN: Asignación explícita del long a la propiedad long?
+                    ReferenciaOrigenId = referenciaId // Aquí ya es long, y se asigna a long?
                 };
+                // LLAMADA Y CASTEO: Hacemos el cast explícito.
+                var respBase = ClienteSocketInterno.EnviarAsiento(ipCont, int.Parse(portStr), asientoReq);
 
-                var resp = ClienteSocketInterno.EnviarAsiento(ipCont, int.Parse(portStr), asientoReq);
-                return resp.Exito ? "(Contabilidad OK)" : $"(Fallo Cont: {resp.Mensaje})";
+                // CORRECCIÓN DEL ERROR DE CONVERSIÓN: Casteamos el tipo base a RespuestaAsientoGuardado
+                var resp = respBase as RespuestaAsientoGuardado;
+
+                if (resp == null)
+                {
+                    return $"(Fallo Cont: Respuesta inesperada del servidor.)";
+                }
+
+                // 4. VERIFICACIÓN DE RESULTADO
+                // Usamos 'resp' (que es RespuestaAsientoGuardado) para acceder a Exito y Asiento
+                return resp.Exito ?
+                       $"(Contabilidad OK - Asiento N° {resp.Asiento?.Numero})" :
+                       $"(Fallo Cont: {resp.Mensaje})";
             }
-            catch { return "(Error Conexión Contabilidad)"; }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error de Integración con Contabilidad: {ex.Message}");
+                return $"(Error Conexión Contabilidad: {ex.Message})";
+            }
         }
-
         // =================================================
         // 4. REPORTES (CORREGIDO AQUÍ)
         // =================================================
 
-        // Ahora aceptamos ReporteRequest para obtener las fechas
+            // Ahora aceptamos ReporteRequest para obtener las fechas
         public ReporteResponse GenerarReporteGastos(ReporteRequest req)
         {
             try

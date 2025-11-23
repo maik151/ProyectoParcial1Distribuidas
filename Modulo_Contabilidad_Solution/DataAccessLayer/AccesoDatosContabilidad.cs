@@ -661,5 +661,120 @@ namespace DataAccesLayer
             }
             return lista;
         }
+
+
+        public long InsertarAsiento(AsientoRequest asientoRequest)
+        {
+            long comprobanteId = 0;
+
+            try
+            {
+                using (OracleConnection conn = new OracleConnection(connectionString))
+                {
+                    conn.Open();
+                    OracleTransaction trans = conn.BeginTransaction();
+                    string numeroTemp = DateTime.Now.ToString("yyyyMMddHHmmss");
+
+                    try
+                    {
+                        // 1. INSERTAR CABECERA y OBTENER EL ID GENERADO
+                        string sqlCab = @"INSERT INTO CabeceraComprobanteCuenta
+                                     (numero, fecha, observaciones, modulo_origen, referencia_origen_id) 
+                                     VALUES (:numero, :fecha, :obs, :modulo, :ref)
+                                     RETURNING comprobante_id INTO :id";
+
+                        using (OracleCommand cmd = new OracleCommand(sqlCab, conn))
+                        {
+                            cmd.Transaction = trans;
+                            cmd.BindByName = true;
+                            cmd.Parameters.Add(new OracleParameter("numero", OracleDbType.Varchar2)).Value = numeroTemp;
+                            // Parámetros de la Cabecera
+                            cmd.Parameters.Add(new OracleParameter("fecha", OracleDbType.Date)).Value = asientoRequest.Fecha;
+                            cmd.Parameters.Add(new OracleParameter("obs", OracleDbType.Varchar2)).Value = asientoRequest.Glosa ?? (object)DBNull.Value;
+                            cmd.Parameters.Add(new OracleParameter("modulo", OracleDbType.Varchar2)).Value = asientoRequest.ModuloOrigen;
+
+                            // Usamos el ID de referencia si existe
+                            cmd.Parameters.Add(new OracleParameter("ref", OracleDbType.Int64)).Value = asientoRequest.ReferenciaOrigenId ?? (object)DBNull.Value;
+
+                            OracleParameter outId = new OracleParameter("id", OracleDbType.Int64);
+                            outId.Direction = ParameterDirection.Output;
+                            cmd.Parameters.Add(outId);
+
+                            cmd.ExecuteNonQuery();
+                            comprobanteId = Convert.ToInt64(outId.Value.ToString());
+                        }
+
+                        // 2. INSERTAR DETALLES
+                        string sqlDet = @"INSERT INTO DetalleComprobanteCuenta
+                          (comprobante_id, cuenta_id, cantidad_debe, cantidad_haber)
+                          VALUES (:comp_id, :cuenta_id, :debe, :haber)"; // <--- CORRECCIÓN: Ahora se usa cuenta_id
+
+                        foreach (var detalle in asientoRequest.Detalles)
+                        {
+                            // OBTENER EL ID DE CUENTA DENTRO DE LA TRANSACCIÓN
+                            long cuentaId = ObtenerCuentaIdPorCodigo(detalle.CuentaCodigo, conn, trans);
+
+                            if (cuentaId == 0)
+                            {
+                                // Si la cuenta no existe, forzamos un error de transacción para ROLLBACK
+                                throw new Exception($"El código de cuenta '{detalle.CuentaCodigo}' no existe en el Plan de Cuentas.");
+                            }
+
+                            using (OracleCommand cmdDet = new OracleCommand(sqlDet, conn))
+                            {
+                                cmdDet.Transaction = trans;
+                                cmdDet.BindByName = true;
+                                cmdDet.Parameters.Add(new OracleParameter("comp_id", OracleDbType.Int64)).Value = comprobanteId;
+
+                                // CORRECCIÓN FINAL: Bindear el ID numérico
+                                cmdDet.Parameters.Add(new OracleParameter("cuenta_id", OracleDbType.Int64)).Value = cuentaId;
+
+                                cmdDet.Parameters.Add(new OracleParameter("debe", OracleDbType.Decimal)).Value = detalle.ValorDebe;
+                                cmdDet.Parameters.Add(new OracleParameter("haber", OracleDbType.Decimal)).Value = detalle.ValorHaber;
+
+                                cmdDet.ExecuteNonQuery();
+                            }
+                        }
+
+                        trans.Commit();
+                    }
+                    catch (Exception txEx)
+                    {
+                        trans.Rollback();
+                        // Relanzamos la excepción para que el GestorContabilidad sepa el error
+                        throw;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error BD InsertarAsiento: " + ex.Message);
+                return 0;
+            }
+            return comprobanteId; // Devolvemos el ID generado
+        }
+
+
+        public long ObtenerCuentaIdPorCodigo(string codigo, OracleConnection conn, OracleTransaction trans)
+        {
+            long cuentaId = 0;
+
+            // NOTA: Usamos la conexión y transacción existentes para mantener la atomicidad.
+            string sql = "SELECT cuenta_id FROM Cuenta WHERE codigo = :codigo";
+
+            using (OracleCommand cmd = new OracleCommand(sql, conn))
+            {
+                cmd.Transaction = trans; // Usar la transacción actual
+                cmd.BindByName = true;
+                cmd.Parameters.Add(new OracleParameter("codigo", OracleDbType.Varchar2)).Value = codigo;
+
+                object result = cmd.ExecuteScalar();
+                if (result != null && result != DBNull.Value)
+                {
+                    cuentaId = Convert.ToInt64(result);
+                }
+            }
+            return cuentaId;
+        }
     }
 }

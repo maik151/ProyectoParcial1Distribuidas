@@ -330,8 +330,7 @@ namespace DataAccesLayer
                             GROUP BY
                                 a.nombre
                             ORDER BY
-                                costo_total DESC"; // <--- SIN PUNTO Y COMA FINAL
-                                                   // (Para evitar ORA-00933)
+                                costo_total DESC"; 
 
                     using (OracleCommand cmd = new OracleCommand(sql, conn))
                     {

@@ -154,6 +154,16 @@ class Program
                                 jsonRespuesta = JsonSerializer.Serialize(respEstado);
                                 break;
 
+                            case "CREAR_ASIENTO":
+                                // Deserializamos usando la clase que contiene la cabecera y los detalles
+                                var reqAsiento = JsonSerializer.Deserialize<AsientoRequest>(jsonRecibido);
+
+                                // Llamamos al nuevo método con la validación de partida doble
+                                var respAsiento = servicio.GuardarAsiento(reqAsiento);
+
+                                jsonRespuesta = JsonSerializer.Serialize(respAsiento);
+                                break;
+
                         }
                     }
                 }

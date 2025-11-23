@@ -17,5 +17,5 @@ namespace Entity
 
     }
 
-
+    // La respuesta puede reutilizar RespuestaBase
 }

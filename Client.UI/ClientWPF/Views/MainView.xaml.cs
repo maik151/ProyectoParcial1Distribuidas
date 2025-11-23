@@ -93,7 +93,8 @@ namespace ClientWPF
 
         private void BtnMantenimiento_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Módulo Mantenimiento - En construcción", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+            MantenimientoView view = new MantenimientoView();
+            view.ShowDialog();
         }
 
         private void BtnBiblioteca_Click(object sender, RoutedEventArgs e)

@@ -189,10 +189,15 @@ namespace ClientWPF.Views
 
         private void BtnRepGastos_Click(object sender, RoutedEventArgs e)
         {
-            // AÑADIDO: Validación y obtención de fechas
+            // 1) Validar rango de fechas
             if (dpDesde.SelectedDate == null || dpHasta.SelectedDate == null)
             {
-                MessageBox.Show("Seleccione una Fecha Inicial y una Fecha Final para el reporte.", "Error de Filtro", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show(
+                    "Seleccione una Fecha Inicial y una Fecha Final para el reporte.",
+                    "Error de Filtro",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning
+                );
                 return;
             }
 
@@ -201,89 +206,46 @@ namespace ClientWPF.Views
 
             if (fechaInicio > fechaFin)
             {
-                MessageBox.Show("La Fecha Inicial no puede ser posterior a la Fecha Final.", "Error de Rango", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show(
+                    "La Fecha Inicial no puede ser posterior a la Fecha Final.",
+                    "Error de Rango",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning
+                );
                 return;
             }
 
             try
             {
-                // LLAMADA MODIFICADA: Ahora pasamos las fechas al controlador
+                // 2) Traer los datos DEL PERIODO (sin agrupar aquí)
                 var datos = controller.ObtenerReporteGastos(fechaInicio, fechaFin);
 
-                gridReportes.ItemsSource = null;
-                gridReportes.Columns.Clear();
-                gridReportes.AutoGenerateColumns = true;
-                gridReportes.ItemsSource = datos;
-
-                if (datos.Count == 0) MessageBox.Show("No hay datos que coincidan con el rango seleccionado.");
-            }
-            catch (Exception ex) { MessageBox.Show(ex.Message); }
-        }
-
-        private void BtnRepMatriz_Click(object sender, RoutedEventArgs e)
-        {
-            // AÑADIDO: Validación y obtención de fechas
-            if (dpDesde.SelectedDate == null || dpHasta.SelectedDate == null)
-            {
-                MessageBox.Show("Seleccione una Fecha Inicial y una Fecha Final para el reporte.", "Error de Filtro", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            DateTime fechaInicio = dpDesde.SelectedDate.Value;
-            DateTime fechaFin = dpHasta.SelectedDate.Value;
-
-            if (fechaInicio > fechaFin)
-            {
-                MessageBox.Show("La Fecha Inicial no puede ser posterior a la Fecha Final.", "Error de Rango", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            try
-            {
-                // LLAMADA MODIFICADA: Ahora pasamos las fechas al controlador
-                var datosPlanos = controller.ObtenerReporteMatriz(fechaInicio, fechaFin);
-
-                if (datosPlanos.Count == 0) { MessageBox.Show("No hay datos que coincidan con el rango seleccionado."); return; }
-
-                DataTable dt = ConstruirMatrizDinamica(datosPlanos);
-
-                gridReportes.ItemsSource = null;
-                gridReportes.Columns.Clear();
-                gridReportes.AutoGenerateColumns = true;
-                gridReportes.ItemsSource = dt.DefaultView;
-            }
-            catch (Exception ex) { MessageBox.Show(ex.Message); }
-        }
-
-        private DataTable ConstruirMatrizDinamica(List<ReporteMatrizDTO> datos)
-        {
-            // Lógica de pivoteo
-            DataTable dt = new DataTable();
-            dt.Columns.Add("ACTIVO", typeof(string));
-
-            var actividades = datos.Select(x => x.Actividad).Distinct().OrderBy(x => x).ToList();
-            foreach (var act in actividades) dt.Columns.Add(act, typeof(decimal));
-
-            dt.Columns.Add("TOTAL", typeof(decimal));
-
-            var activos = datos.Select(x => x.Activo).Distinct().OrderBy(x => x).ToList();
-            foreach (var nomActivo in activos)
-            {
-                DataRow row = dt.NewRow();
-                row["ACTIVO"] = nomActivo;
-                decimal total = 0;
-                foreach (var act in actividades)
+                // 3) Si no hay datos, limpio el grid y aviso
+                if (datos == null || datos.Count == 0)
                 {
-                    var reg = datos.FirstOrDefault(x => x.Activo == nomActivo && x.Actividad == act);
-                    decimal val = reg != null ? reg.Valor : 0;
-                    row[act] = val;
-                    total += val;
+                    gridReportes.ItemsSource = null;
+                    gridReportes.Columns.Clear();
+                    MessageBox.Show("No hay datos que coincidan con el rango seleccionado.");
+                    return;
                 }
-                row["TOTAL"] = total;
-                dt.Rows.Add(row);
+
+                // 4) Mostrar TODOS los registros tal cual vienen de la consulta
+                gridReportes.ItemsSource = null;
+                gridReportes.Columns.Clear();
+                gridReportes.AutoGenerateColumns = true;
+                gridReportes.ItemsSource = datos;   // 👈 cada ítem de 'datos' = una fila del grid
+
+                // (Opcional para debug:)
+                // MessageBox.Show($"Registros mostrados: {datos.Count}");
             }
-            return dt;
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
+
+
+
 
         private void BtnExportar_Click(object sender, RoutedEventArgs e)
         {
@@ -387,5 +349,83 @@ namespace ClientWPF.Views
         private void BtnCerrar_Click(object sender, RoutedEventArgs e) { this.Close(); }
         private void BtnRecargar_Click(object sender, RoutedEventArgs e) { CargarDatosIniciales(); }
         private void Window_MouseDown(object sender, MouseButtonEventArgs e) { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); }
+
+        private void BtnRepMatriz_Click(object sender, RoutedEventArgs e)
+        {
+            // Validación de fechas (la tuya la dejo igual)
+            if (dpDesde.SelectedDate == null || dpHasta.SelectedDate == null)
+            {
+                MessageBox.Show("Seleccione una Fecha Inicial y una Fecha Final para el reporte.",
+                                "Error de Filtro", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            DateTime fechaInicio = dpDesde.SelectedDate.Value;
+            DateTime fechaFin = dpHasta.SelectedDate.Value;
+
+            if (fechaInicio > fechaFin)
+            {
+                MessageBox.Show("La Fecha Inicial no puede ser posterior a la Fecha Final.",
+                                "Error de Rango", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                var datosPlanos = controller.ObtenerReporteMatriz(fechaInicio, fechaFin);
+
+                if (datosPlanos.Count == 0)
+                {
+                    MessageBox.Show("No hay datos que coincidan con el rango seleccionado.");
+                    return;
+                }
+
+                // 🚩 Aquí ya NO pivotamos, mostramos el listado tal cual:
+                gridReportes.ItemsSource = null;
+                gridReportes.Columns.Clear();
+                gridReportes.AutoGenerateColumns = true;
+                gridReportes.ItemsSource = datosPlanos;   // <─ AQUÍ está la diferencia
+
+                // Opcional: por si quieres comprobar cuántos muestra
+                // MessageBox.Show($"Registros mostrados: {datosPlanos.Count}");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+        private DataTable ConstruirMatrizDinamica(List<ReporteMatrizDTO> datos)
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("ACTIVO", typeof(string));
+
+            var actividades = datos.Select(x => x.Actividad).Distinct().OrderBy(x => x).ToList();
+            foreach (var act in actividades)
+                dt.Columns.Add(act, typeof(decimal));
+
+            dt.Columns.Add("TOTAL", typeof(decimal));
+
+            var activos = datos.Select(x => x.Activo).Distinct().OrderBy(x => x).ToList();
+            foreach (var nomActivo in activos)
+            {
+                DataRow row = dt.NewRow();
+                row["ACTIVO"] = nomActivo;
+                decimal total = 0;
+
+                foreach (var act in actividades)
+                {
+                    var reg = datos.FirstOrDefault(x => x.Activo == nomActivo && x.Actividad == act);
+                    decimal val = reg != null ? reg.Valor : 0;
+                    row[act] = val;
+                    total += val;
+                }
+
+                row["TOTAL"] = total;
+                dt.Rows.Add(row);
+            }
+
+            return dt;
+        }
+
     }
 }
