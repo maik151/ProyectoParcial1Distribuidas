@@ -12,7 +12,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        // 1. CARGAR CONFIG
+        // 1. CARGAR CONFIGURACIÓN
         var builder = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
@@ -49,7 +49,7 @@ class Program
     {
         using (NetworkStream stream = client.GetStream())
         {
-            byte[] buffer = new byte[4096]; // Buffer amplio por si mandan muchos detalles
+            byte[] buffer = new byte[4096];
             int bytesRead = stream.Read(buffer, 0, buffer.Length);
 
             if (bytesRead > 0)
@@ -82,7 +82,6 @@ class Program
                                 var respGuardar = servicio.Guardar(reqMant);
                                 jsonRespuesta = JsonSerializer.Serialize(respGuardar);
                                 break;
-                            
 
                             case "GUARDAR_ACTIVIDAD":
                                 var reqAct = JsonSerializer.Deserialize<ActividadRequest>(jsonRecibido);
@@ -94,6 +93,36 @@ class Program
                                 var reqElimAct = JsonSerializer.Deserialize<ActividadRequest>(jsonRecibido);
                                 var respElimAct = servicio.EliminarActividad(reqElimAct.Actividad.Codigo);
                                 jsonRespuesta = JsonSerializer.Serialize(respElimAct);
+                                break;
+
+                            // --- AQUÍ ESTABA EL ERROR: FALTABAN PARAMETROS ---
+                            case "REPORTE_GASTOS":
+                                // 1. Deserializamos el Request que trae las fechas
+                                var reqRep1 = JsonSerializer.Deserialize<ReporteRequest>(jsonRecibido);
+                                // 2. Pasamos el request al servicio
+                                var respRep1 = servicio.GenerarReporteGastos(reqRep1);
+                                jsonRespuesta = JsonSerializer.Serialize(respRep1);
+                                break;
+
+                            case "REPORTE_MATRIZ":
+                                // 1. Deserializamos el Request que trae las fechas
+                                var reqRep2 = JsonSerializer.Deserialize<ReporteRequest>(jsonRecibido);
+                                // 2. Pasamos el request al servicio
+                                var respRep2 = servicio.GenerarReporteMatriz(reqRep2);
+                                jsonRespuesta = JsonSerializer.Serialize(respRep2);
+                                break;
+                            // -------------------------------------------------
+
+                            case "GUARDAR_ACTIVO":
+                                var reqActivo = JsonSerializer.Deserialize<ActivoRequest>(jsonRecibido);
+                                var respActivo = servicio.GuardarActivoLocal(reqActivo.Activo.Id, reqActivo.Activo.Nombre);
+                                jsonRespuesta = JsonSerializer.Serialize(respActivo);
+                                break;
+
+                            case "ELIMINAR_ACTIVO":
+                                var reqElimActivo = JsonSerializer.Deserialize<ActivoRequest>(jsonRecibido);
+                                var respElimActivo = servicio.EliminarActivo(reqElimActivo.Activo.Id);
+                                jsonRespuesta = JsonSerializer.Serialize(respElimActivo);
                                 break;
 
                             default:

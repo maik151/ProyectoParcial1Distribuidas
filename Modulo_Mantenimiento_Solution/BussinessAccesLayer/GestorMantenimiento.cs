@@ -1,10 +1,10 @@
 ﻿using BussinesEntity;
 using DataAccesLayer;
 using Entity; // Protocolo compartido
-using Microsoft.Extensions.Configuration; // NuGet necesario
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
-using System.IO; // Necesario para leer configuración
+using System.IO;
 using System.Linq;
 
 namespace BussinessAccessLayer
@@ -18,14 +18,15 @@ namespace BussinessAccessLayer
             dal = new AccesoDatosMantenimiento(cadenaConexion);
         }
 
-        // 1. Obtener Actividades para el Combo
+        // =================================================
+        // 1. CATÁLOGOS
+        // =================================================
+
         public ListaComboResponse ObtenerActividades()
         {
             try
             {
                 var listaDB = dal.ListarActividades();
-
-                // Mapeo Entidad -> DTO
                 var listaDTO = listaDB.Select(x => new ItemComboDTO
                 {
                     Id = x.Codigo,
@@ -40,14 +41,11 @@ namespace BussinessAccessLayer
             }
         }
 
-        // 2. Obtener Activos para el Combo
         public ListaComboResponse ObtenerActivos()
         {
             try
             {
                 var listaDB = dal.ListarActivos();
-
-                // Mapeo Entidad -> DTO
                 var listaDTO = listaDB.Select(x => new ItemComboDTO
                 {
                     Id = x.ActivoId.ToString(),
@@ -62,15 +60,87 @@ namespace BussinessAccessLayer
             }
         }
 
-        // 3. Guardar Mantenimiento e INTEGRAR
+        // =================================================
+        // 2. CRUD CATÁLOGOS
+        // =================================================
+
+        public RespuestaBase GuardarActividad(ActividadDTO dto)
+        {
+            try
+            {
+                var entidad = new ActividadMantenimiento
+                {
+                    Codigo = dto.Codigo.ToUpper(),
+                    Nombre = dto.Nombre
+                };
+
+                bool exito = dal.ModificarActividad(entidad);
+                if (!exito) exito = dal.InsertarActividad(entidad);
+
+                return new RespuestaBase
+                {
+                    Exito = exito,
+                    Mensaje = exito ? "Actividad guardada." : "Error en BD."
+                };
+            }
+            catch (Exception ex) { return new RespuestaBase { Exito = false, Mensaje = ex.Message }; }
+        }
+
+        public RespuestaBase EliminarActividad(string codigo)
+        {
+            try
+            {
+                bool exito = dal.EliminarActividad(codigo);
+                return new RespuestaBase
+                {
+                    Exito = exito,
+                    Mensaje = exito ? "Actividad eliminada." : "No se pudo eliminar."
+                };
+            }
+            catch (Exception ex) { return new RespuestaBase { Exito = false, Mensaje = ex.Message }; }
+        }
+
+        public RespuestaBase GuardarActivoLocal(long id, string nombre)
+        {
+            try
+            {
+                var entidad = new ActivoMantenimiento
+                {
+                    ActivoId = id,
+                    Codigo = "ACT-" + id,
+                    Nombre = nombre,
+                    FechaCompra = DateTime.Now
+                };
+
+                bool exito = dal.ModificarActivo(entidad);
+                if (!exito) exito = dal.InsertarActivo(entidad);
+
+                return new RespuestaBase { Exito = exito, Mensaje = exito ? "Activo registrado." : "Error." };
+            }
+            catch (Exception ex) { return new RespuestaBase { Exito = false, Mensaje = ex.Message }; }
+        }
+
+        public RespuestaBase EliminarActivo(long id)
+        {
+            try
+            {
+                bool exito = dal.EliminarActivo(id);
+                return new RespuestaBase { Exito = exito, Mensaje = exito ? "Activo eliminado." : "Error." };
+            }
+            catch (Exception ex) { return new RespuestaBase { Exito = false, Mensaje = ex.Message }; }
+        }
+
+        // =================================================
+        // 3. TRANSACCIÓN
+        // =================================================
+
         public RespuestaBase Guardar(MantenimientoRequest req)
         {
             try
             {
-                // A. Mapeo DTO -> Entidad de Negocio
                 var cabecera = new CabeceraMantenimiento
                 {
-                    Numero = req.Numero ?? DateTime.Now.Ticks.ToString().Substring(12), // Generar ID único corto
+                    Numero = req.Numero ?? DateTime.Now.Ticks.ToString().Substring(12),
                     Fecha = req.Fecha,
                     Responsable = req.Responsable,
                     Detalles = req.Detalles.Select(d => new DetalleMantenimiento
@@ -81,105 +151,79 @@ namespace BussinessAccessLayer
                     }).ToList()
                 };
 
-                // B. Guardar en Oracle Local
                 bool guardado = dal.GuardarMantenimiento(cabecera);
 
                 if (guardado)
                 {
-                    // C. INTEGRACIÓN: Enviar Asiento a Contabilidad (RF-MAN-06)
                     string msgIntegracion = IntegrarConContabilidad(cabecera);
-
-                    return new RespuestaBase
-                    {
-                        Exito = true,
-                        Mensaje = $"Mantenimiento guardado OK. {msgIntegracion}"
-                    };
+                    return new RespuestaBase { Exito = true, Mensaje = $"Guardado OK. {msgIntegracion}" };
                 }
-                else
-                {
-                    return new RespuestaBase { Exito = false, Mensaje = "No se pudo guardar en BD Local." };
-                }
+                return new RespuestaBase { Exito = false, Mensaje = "Error guardando en BD Local." };
             }
-            catch (Exception ex)
-            {
-                return new RespuestaBase { Exito = false, Mensaje = "Error BLL: " + ex.Message };
-            }
+            catch (Exception ex) { return new RespuestaBase { Exito = false, Mensaje = "Error BLL: " + ex.Message }; }
         }
 
-        // --- MÉTODO PRIVADO DE INTEGRACIÓN ---
         private string IntegrarConContabilidad(CabeceraMantenimiento cab)
         {
             try
             {
-                // 1. Calcular total
                 decimal totalGasto = cab.Detalles.Sum(d => d.Valor);
-
-                // 2. Leer configuración para saber dónde está Contabilidad
-                var builder = new ConfigurationBuilder()
-                    .SetBasePath(Directory.GetCurrentDirectory())
-                    .AddJsonFile("appsettings.json");
+                var builder = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.json");
                 var config = builder.Build();
 
                 string ipCont = config["Endpoints:IpContabilidad"];
                 string portStr = config["Endpoints:PuertoContabilidad"];
 
-                if (string.IsNullOrEmpty(ipCont) || string.IsNullOrEmpty(portStr))
-                    return "(Sin config de Contabilidad)";
+                if (string.IsNullOrEmpty(ipCont)) return "(Sin config Contabilidad)";
 
-                // 3. Crear Petición de Asiento
                 var asientoReq = new AsientoRequest
                 {
                     Comando = "CREAR_ASIENTO",
                     Fecha = DateTime.Now,
-                    Glosa = $"Gasto Mant. #{cab.Numero} Resp: {cab.Responsable}",
+                    Glosa = $"Gasto Mant. #{cab.Numero}",
                     Monto = totalGasto,
                     ModuloOrigen = "MANTENIMIENTO"
                 };
 
-                // 4. Enviar (Usando ClienteSocketInterno)
                 var resp = ClienteSocketInterno.EnviarAsiento(ipCont, int.Parse(portStr), asientoReq);
+                return resp.Exito ? "(Contabilidad OK)" : $"(Fallo Cont: {resp.Mensaje})";
+            }
+            catch { return "(Error Conexión Contabilidad)"; }
+        }
 
-                return resp.Exito ? "(Contabilidad OK)" : $"(Fallo Contabilidad: {resp.Mensaje})";
+        // =================================================
+        // 4. REPORTES (CORREGIDO AQUÍ)
+        // =================================================
+
+        // Ahora aceptamos ReporteRequest para obtener las fechas
+        public ReporteResponse GenerarReporteGastos(ReporteRequest req)
+        {
+            try
+            {
+                // AQUÍ PASAMOS LOS ARGUMENTOS QUE FALTABAN
+                var datos = dal.ReporteGastosPorActivo(req.FechaInicio, req.FechaFin);
+
+                return new ReporteResponse { Exito = true, ReporteGastos = datos };
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error Integración: " + ex.Message);
-                return "(Error conexión Contabilidad)";
+                return new ReporteResponse { Exito = false, Mensaje = ex.Message };
             }
         }
 
-
-        public RespuestaBase GuardarActividad(ActividadDTO dto)
+        public ReporteResponse GenerarReporteMatriz(ReporteRequest req)
         {
             try
             {
-                var entidad = new ActividadMantenimiento { Codigo = dto.Codigo, Nombre = dto.Nombre };
+                // AQUÍ TAMBIÉN PASAMOS LOS ARGUMENTOS
+                var datos = dal.ReporteMatrizDatos(req.FechaInicio, req.FechaFin);
 
-                // Intentamos Insertar
-                bool exito = dal.InsertarActividad(entidad);
-
-                // Si falla la inserción (probablemente por PK duplicada), intentamos Modificar
-                if (!exito)
-                {
-                    exito = dal.ModificarActividad(entidad);
-                }
-
-                return new RespuestaBase { Exito = exito, Mensaje = exito ? "Actividad Guardada" : "Error al guardar" };
+                return new ReporteResponse { Exito = true, ReporteMatriz = datos };
             }
-            catch (Exception ex) { return new RespuestaBase { Exito = false, Mensaje = ex.Message }; }
-        }
-
-        public RespuestaBase EliminarActividad(string codigo)
-        {
-            try
+            catch (Exception ex)
             {
-                bool exito = dal.EliminarActividad(codigo);
-                return new RespuestaBase { Exito = exito, Mensaje = exito ? "Actividad Eliminada" : "Error al eliminar (¿Quizás está en uso?)" };
+                return new ReporteResponse { Exito = false, Mensaje = ex.Message };
             }
-            catch (Exception ex) { return new RespuestaBase { Exito = false, Mensaje = ex.Message }; }
         }
-
-
-
     }
 }

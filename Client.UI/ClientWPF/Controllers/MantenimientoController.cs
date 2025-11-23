@@ -9,7 +9,9 @@ namespace ClientWPF.Controllers
     {
         ConexionSockets clienteSocket = new ConexionSockets();
 
-        // --- 1. LISTAR (Para los Combos y Tablas) ---
+        // =================================================
+        // 1. LISTAR DATOS (Para Combos y Tablas)
+        // --- 1. LISTAR ---
         public List<ItemComboDTO> ListarActividades()
         {
             var req = new PeticionGeneral { Comando = "LISTAR_ACTIVIDADES" };
@@ -26,7 +28,7 @@ namespace ClientWPF.Controllers
             return resp?.Items ?? new List<ItemComboDTO>();
         }
 
-        // --- 2. GUARDAR CATÁLOGOS (Lo que te faltaba) ---
+        // --- 2. GUARDAR CATÁLOGOS ---
         public RespuestaBase GuardarActividad(string codigo, string nombre)
         {
             var req = new ActividadRequest
@@ -38,14 +40,41 @@ namespace ClientWPF.Controllers
                 ConfigManager.IpMantenimiento, ConfigManager.PuertoMantenimiento, req);
         }
 
-        // (Opcional: Si no tienes Guardar Activo en el server, devuelve falso por ahora)
         public RespuestaBase GuardarActivo(long id, string nombre)
         {
-            // Simulación hasta que implementes esto en el Backend si lo necesitas
-            return new RespuestaBase { Exito = false, Mensaje = "Guardar Activo Local en construcción" };
+            var req = new ActivoRequest
+            {
+                Comando = "GUARDAR_ACTIVO",
+                Activo = new ActivoDTO { Id = id, Nombre = nombre }
+            };
+            return clienteSocket.Enviar<RespuestaBase>(
+                ConfigManager.IpMantenimiento, ConfigManager.PuertoMantenimiento, req);
         }
 
-        // --- 3. GUARDAR MANTENIMIENTO (PRINCIPAL) ---
+        // --- 3. ELIMINAR ---
+        public RespuestaBase EliminarActividad(string codigo)
+        {
+            var req = new ActividadRequest
+            {
+                Comando = "ELIMINAR_ACTIVIDAD",
+                Actividad = new ActividadDTO { Codigo = codigo }
+            };
+            return clienteSocket.Enviar<RespuestaBase>(
+                ConfigManager.IpMantenimiento, ConfigManager.PuertoMantenimiento, req);
+        }
+
+        public RespuestaBase EliminarActivo(long id)
+        {
+            var req = new ActivoRequest
+            {
+                Comando = "ELIMINAR_ACTIVO",
+                Activo = new ActivoDTO { Id = id }
+            };
+            return clienteSocket.Enviar<RespuestaBase>(
+                ConfigManager.IpMantenimiento, ConfigManager.PuertoMantenimiento, req);
+        }
+
+        // --- 4. GUARDAR MANTENIMIENTO ---
         public RespuestaBase GuardarMantenimiento(MantenimientoRequest transaccion)
         {
             transaccion.Comando = "GUARDAR_MANTENIMIENTO";
@@ -53,6 +82,37 @@ namespace ClientWPF.Controllers
                 ConfigManager.IpMantenimiento, ConfigManager.PuertoMantenimiento, transaccion);
         }
 
-        // NOTA: He quitado los métodos de Reportes para que no te den error.
+        // --- 5. REPORTES (ESTOS SON LOS QUE FALTABAN) ---
+        public List<ReporteGastoDTO> ObtenerReporteGastos(DateTime inicio, DateTime fin)
+        {
+            
+            var req = new ReporteRequest
+            {
+                Comando = "REPORTE_GASTOS",
+                FechaInicio = inicio,
+                FechaFin = fin
+            };
+
+            
+            var resp = clienteSocket.Enviar<ReporteResponse>(
+                ConfigManager.IpMantenimiento, ConfigManager.PuertoMantenimiento, req);
+
+            return resp?.ReporteGastos ?? new List<ReporteGastoDTO>();
+        }
+
+        public List<ReporteMatrizDTO> ObtenerReporteMatriz(DateTime inicio, DateTime fin)
+        {
+            var req = new ReporteRequest
+            {
+                Comando = "REPORTE_MATRIZ",
+                FechaInicio = inicio,
+                FechaFin = fin
+            };
+
+            var resp = clienteSocket.Enviar<ReporteResponse>(
+                ConfigManager.IpMantenimiento, ConfigManager.PuertoMantenimiento, req);
+
+            return resp?.ReporteMatriz ?? new List<ReporteMatrizDTO>();
+        }
     }
 }

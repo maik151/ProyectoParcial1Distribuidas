@@ -1,4 +1,5 @@
 ﻿using BussinesEntity;
+using Entity;
 using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Collections.Generic;
@@ -245,6 +246,177 @@ namespace DataAccesLayer
                     return false;
                 }
             }
+        }
+
+        // MODIFICAR ACTIVO
+        public bool ModificarActivo(ActivoMantenimiento item)
+        {
+            try
+            {
+                using (OracleConnection conn = new OracleConnection(connectionString))
+                {
+                    conn.Open();
+                    // Actualizamos nombre y fecha compra basado en el ID
+                    string sql = "UPDATE ActivoMantenimiento SET nombre = :p_nom, fecha_compra = :p_fecha, codigo = :p_cod " +
+                                 "WHERE activo_id = :p_id";
+
+                    using (OracleCommand cmd = new OracleCommand(sql, conn))
+                    {
+                        cmd.BindByName = true;
+                        cmd.Parameters.Add("p_nom", OracleDbType.Varchar2).Value = item.Nombre;
+                        cmd.Parameters.Add("p_fecha", OracleDbType.Date).Value = item.FechaCompra;
+                        cmd.Parameters.Add("p_cod", OracleDbType.Varchar2).Value = item.Codigo;
+                        cmd.Parameters.Add("p_id", OracleDbType.Int64).Value = item.ActivoId;
+
+                        return cmd.ExecuteNonQuery() > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error Modificar Activo: " + ex.Message);
+                return false;
+            }
+        }
+
+        // ELIMINAR ACTIVO
+        public bool EliminarActivo(long id)
+        {
+            try
+            {
+                using (OracleConnection conn = new OracleConnection(connectionString))
+                {
+                    conn.Open();
+                    string sql = "DELETE FROM ActivoMantenimiento WHERE activo_id = :p_id";
+                    using (OracleCommand cmd = new OracleCommand(sql, conn))
+                    {
+                        cmd.BindByName = true;
+                        cmd.Parameters.Add("p_id", OracleDbType.Int64).Value = id;
+                        return cmd.ExecuteNonQuery() > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error Eliminar Activo: " + ex.Message);
+                return false;
+            }
+        }
+
+        // --- REPORTE 1: GASTOS POR ACTIVO ---
+        public List<ReporteGastoDTO> ReporteGastosPorActivo(DateTime inicio, DateTime fin)
+        {
+            var lista = new List<ReporteGastoDTO>();
+            try
+            {
+                using (OracleConnection conn = new OracleConnection(connectionString))
+                {
+                    conn.Open();
+
+                    string sql = @"
+                            SELECT
+                                a.nombre AS nombre_activo,
+                                SUM(d.valor) AS costo_total  
+                            FROM
+                                DetalleMantenimiento d
+                            JOIN
+                                CabeceraMantenimiento c ON d.cabecera_mantenimiento_id = c.cabecera_mantenimiento_id
+                            JOIN
+                                ActivoMantenimiento a ON d.activo_id = a.activo_id
+                            WHERE
+                                -- SINTAXIS CORREGIDA: Uso directo del parámetro nativo (ODP.NET lo tipa como DATE)
+                                c.fecha >= :p_ini
+                                AND c.fecha < :p_fin + 1
+                            GROUP BY
+                                a.nombre
+                            ORDER BY
+                                costo_total DESC"; // <--- SIN PUNTO Y COMA FINAL
+                                                   // (Para evitar ORA-00933)
+
+                    using (OracleCommand cmd = new OracleCommand(sql, conn))
+                    {
+                        cmd.BindByName = true;
+                        cmd.Parameters.Add("p_ini", OracleDbType.Date).Value = inicio;
+                        cmd.Parameters.Add("p_fin", OracleDbType.Date).Value = fin;
+
+                        using (OracleDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                lista.Add(new ReporteGastoDTO
+                                {
+                                    NombreActivo = reader["nombre_activo"].ToString(),
+                                    TotalGasto = reader["costo_total"] == DBNull.Value ? 0 : Convert.ToDecimal(reader["costo_total"])
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error Reporte 1: " + ex.Message);
+            }
+            return lista;
+        }
+        public List<ReporteMatrizDTO> ReporteMatrizDatos(DateTime inicio, DateTime fin)
+        {
+            var lista = new List<ReporteMatrizDTO>();
+            try
+            {
+                using (OracleConnection conn = new OracleConnection(connectionString))
+                {
+                    conn.Open();
+
+                    string sql = @"SELECT
+                                a.nombre AS activo,
+                                act.nombre AS actividad,
+                                SUM(d.valor) AS valor_total
+                            FROM
+                                DetalleMantenimiento d
+                            JOIN
+                                CabeceraMantenimiento c ON d.cabecera_mantenimiento_id = c.cabecera_mantenimiento_id
+                            JOIN
+                                ActivoMantenimiento a ON d.activo_id = a.activo_id
+                            JOIN
+                                ActividadMantenimiento act ON d.actividad_codigo = act.codigo
+                            WHERE
+                                -- SINTAXIS CORREGIDA: Uso directo del parámetro nativo
+                                c.fecha >= :p_ini
+                                AND c.fecha < :p_fin + 1
+                            GROUP BY
+                                a.nombre,
+                                act.nombre
+                            ORDER BY
+                                a.nombre,
+                                valor_total DESC"; // <--- SIN PUNTO Y COMA FINAL
+
+                    using (OracleCommand cmd = new OracleCommand(sql, conn))
+                    {
+                        cmd.BindByName = true;
+                        cmd.Parameters.Add("p_ini", OracleDbType.Date).Value = inicio;
+                        cmd.Parameters.Add("p_fin", OracleDbType.Date).Value = fin;
+
+                        using (OracleDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                lista.Add(new ReporteMatrizDTO
+                                {
+                                    Activo = reader["activo"].ToString(),
+                                    Actividad = reader["actividad"].ToString(),
+                                    Valor = Convert.ToDecimal(reader["valor_total"])
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error Reporte 2: " + ex.Message);
+            }
+            return lista;
         }
     }
 }
