@@ -3,18 +3,15 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Gestión de Mantenimiento" Height="700" Width="1100"
         WindowStartupLocation="CenterScreen"
-        WindowStyle="None" 
-        AllowsTransparency="True" 
-        Background="Transparent"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         ResizeMode="CanResize"
         MouseDown="Window_MouseDown">
 
     <Window.Resources>
-        <!-- PALETA DE COLORES -->
-        <Color x:Key="AccentColor">#D92027</Color>
+        <!-- 1) BRUSHES BASE -->
         <SolidColorBrush x:Key="SurfaceBrush" Color="#F2F0E9"/>
         <SolidColorBrush x:Key="PrimaryTextBrush" Color="#023E38"/>
-        <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}"/>
+        <SolidColorBrush x:Key="AccentBrush" Color="#D92027"/>
         <SolidColorBrush x:Key="WhiteBrush" Color="#FFFFFF"/>
         <SolidColorBrush x:Key="LightHoverBrush" Color="#15023E38"/>
         <SolidColorBrush x:Key="DangerBrush" Color="#FF6B6B"/>
@@ -25,7 +22,7 @@
             <GradientStop Color="#012925" Offset="1.0"/>
         </LinearGradientBrush>
 
-        <!-- ESTILO INPUTS -->
+        <!-- 2) ESTILOS INPUT / LABEL / BOTONES / GRIDS -->
         <Style x:Key="SquareInputStyle" TargetType="Border">
             <Setter Property="CornerRadius" Value="4"/>
             <Setter Property="Background" Value="#FFFFFF"/>
@@ -35,7 +32,6 @@
             <Setter Property="Padding" Value="5"/>
         </Style>
 
-        <!-- LABEL STYLE -->
         <Style x:Key="InputLabel" TargetType="TextBlock">
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
@@ -44,7 +40,6 @@
             <Setter Property="VerticalAlignment" Value="Bottom"/>
         </Style>
 
-        <!-- BOTONES -->
         <Style x:Key="SquarePrimaryButton" TargetType="Button">
             <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
             <Setter Property="Foreground" Value="{StaticResource SurfaceBrush}"/>
@@ -100,35 +95,6 @@
             </Setter>
         </Style>
 
-        <Style x:Key="ReportCardButton" TargetType="Button">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="BorderBrush" Value="#E0E0E0"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="CardBorder" Background="{TemplateBinding Background}" CornerRadius="8" BorderThickness="1" BorderBrush="{TemplateBinding BorderBrush}" Padding="15">
-                            <Border.Effect>
-                                <DropShadowEffect Color="Black" BlurRadius="5" ShadowDepth="1" Opacity="0.1"/>
-                            </Border.Effect>
-                            <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="CardBorder" Property="Background" Value="#FAFAFA"/>
-                                <Setter TargetName="CardBorder" Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
-                                <Setter TargetName="CardBorder" Property="Effect">
-                                    <Setter.Value>
-                                        <DropShadowEffect Color="{StaticResource AccentColor}" BlurRadius="8" ShadowDepth="0" Opacity="0.2"/>
-                                    </Setter.Value>
-                                </Setter>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
         <Style x:Key="GridActionButton" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -150,35 +116,13 @@
             </Setter>
         </Style>
 
-        <!-- TABS -->
-        <Style TargetType="TabItem">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TabItem">
-                        <Border Name="Border" BorderThickness="0" Background="Transparent" Margin="5,0" CornerRadius="10">
-                            <ContentPresenter x:Name="ContentSite" VerticalAlignment="Center" HorizontalAlignment="Center" ContentSource="Header" Margin="20,10"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="{StaticResource SurfaceBrush}"/>
-                                <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
-                                <Setter Property="FontWeight" Value="Bold"/>
-                            </Trigger>
-                            <Trigger Property="IsSelected" Value="False">
-                                <Setter Property="Foreground" Value="#8898AA"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- ESTILO DATAGRID GENERAL -->
         <Style TargetType="DataGrid">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="RowHeaderWidth" Value="0"/>
             <Setter Property="GridLinesVisibility" Value="Horizontal"/>
             <Setter Property="HorizontalGridLinesBrush" Value="#20023E38"/>
+            <Setter Property="VerticalGridLinesBrush" Value="Transparent"/>
             <Setter Property="AutoGenerateColumns" Value="False"/>
             <Setter Property="CanUserAddRows" Value="False"/>
             <Setter Property="IsReadOnly" Value="True"/>
@@ -190,7 +134,7 @@
                         <Setter Property="Background" Value="Transparent"/>
                         <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}"/>
                         <Setter Property="FontWeight" Value="Bold"/>
-                        <Setter Property="Padding" Value="10,15"/>
+                        <Setter Property="Padding" Value="10,10"/>
                         <Setter Property="BorderThickness" Value="0,0,0,2"/>
                         <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
                         <Setter Property="HorizontalContentAlignment" Value="Left"/>
@@ -216,7 +160,6 @@
             </Setter>
         </Style>
 
-        <!-- ESTILO DATAGRID REPORTES -->
         <Style x:Key="ReportDataGrid" TargetType="DataGrid" BasedOn="{StaticResource {x:Type DataGrid}}">
             <Setter Property="GridLinesVisibility" Value="None"/>
             <Setter Property="RowBackground" Value="White"/>
@@ -238,16 +181,61 @@
                         <Setter Property="Padding" Value="15,10"/>
                         <Setter Property="BorderThickness" Value="0"/>
                         <Setter Property="Foreground" Value="#333"/>
-                        <Style.Triggers>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="Background" Value="#E0F2F1"/>
-                                <Setter Property="Foreground" Value="Black"/>
-                            </Trigger>
-                        </Style.Triggers>
                     </Style>
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- 3) ESTILOS TABCONTROL / TABITEM -->
+        <Style TargetType="TabControl">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+        </Style>
+
+        <Style TargetType="TabItem">
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="Padding" Value="16,6"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border x:Name="Bd"
+                        CornerRadius="6,6,0,0"
+                        Background="Transparent"
+                        Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"
+                                      ContentSource="Header"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <!-- Seleccionada -->
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource AccentBrush}"/>
+                                <Setter Property="Foreground" Value="{StaticResource WhiteBrush}"/>
+                            </Trigger>
+
+                            <!-- Hover SOLO cuando NO está seleccionada -->
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                    <Condition Property="IsSelected" Value="False"/>
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource LightHoverBrush}"/>
+                            </MultiTrigger>
+
+                            <!-- Deshabilitada -->
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Foreground" Value="#80023E38"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
     </Window.Resources>
 
     <Border Background="{StaticResource BackgroundGradient}">
@@ -262,56 +250,74 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <!-- HEADER PRINCIPAL -->
+                <!-- HEADER -->
                 <Grid Grid.Row="0" Margin="0,0,0,20">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <Path Data="M19.43,12.98C19.47,12.66 19.5,12.34 19.5,12C19.5,11.66 19.47,11.34 19.43,11.02L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.97 19.05,5.05L16.56,6.05C16.04,5.65 15.48,5.32 14.87,5.07L14.49,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.51,2.42L9.13,5.07C8.52,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11.02C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.66 4.57,12.98L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.95C7.96,18.34 8.52,18.68 9.13,18.93L9.51,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.49,21.58L14.87,18.93C15.48,18.68 16.04,18.34 16.56,17.95L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.98M12,15.5C10.07,15.5 8.5,13.93 8.5,12C8.5,10.07 10.07,8.5 12,8.5C13.93,8.5 15.5,10.07 15.5,12C15.5,13.93 13.93,15.5 12,15.5Z" 
-                              Fill="{StaticResource AccentBrush}" Height="28" Width="28" Stretch="Uniform" Margin="0,0,12,0"/>
-                        <TextBlock Text="MÓDULO DE MANTENIMIENTO" FontSize="24" FontWeight="Black" Foreground="{StaticResource PrimaryTextBrush}" VerticalAlignment="Center"/>
+                        <TextBlock Text="MÓDULO DE MANTENIMIENTO"
+                                   FontSize="24"
+                                   FontWeight="Black"
+                                   Foreground="{StaticResource PrimaryTextBrush}"
+                                   VerticalAlignment="Center"/>
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <Button Click="BtnRecargar_Click" Style="{StaticResource GridActionButton}" ToolTip="Recargar">
-                            <Path Data="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z" Fill="{StaticResource PrimaryTextBrush}" Width="16" Height="16" Stretch="Uniform"/>
+                            <Path Data="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"
+                                  Fill="{StaticResource PrimaryTextBrush}" Width="16" Height="16" Stretch="Uniform"/>
                         </Button>
                         <Button Click="BtnCerrar_Click" Style="{StaticResource GridActionButton}" Margin="5,0,0,0" ToolTip="Cerrar">
-                            <Path Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" Fill="{StaticResource AccentBrush}" Width="14" Height="14" Stretch="Uniform"/>
+                            <Path Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"
+                                  Fill="{StaticResource AccentBrush}" Width="14" Height="14" Stretch="Uniform"/>
                         </Button>
                     </StackPanel>
                 </Grid>
 
-                <!-- CONTENIDO TABS -->
+                <!-- CONTENIDO PRINCIPAL -->
                 <TabControl Grid.Row="1" Background="Transparent" BorderThickness="0">
 
-                    <!-- PESTAÑA 1: REGISTRO -->
+                    <!-- TAB 1: REGISTRO -->
                     <TabItem Header="REGISTRO">
-                        <Grid Margin="0,20,0,0">
+                        <Grid Margin="0,15,0,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="320"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
                             <!-- PANEL IZQUIERDO -->
-                            <Border Grid.Column="0" Background="{StaticResource WhiteBrush}" CornerRadius="8" Margin="0,0,20,0" Padding="20" BorderBrush="#20000000" BorderThickness="1">
+                            <Border Grid.Column="0" Background="{StaticResource WhiteBrush}" CornerRadius="8"
+                                    Margin="0,0,20,0" Padding="20" BorderBrush="#20000000" BorderThickness="1">
                                 <StackPanel>
-                                    <TextBlock Text="Datos Generales" FontSize="16" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,20"/>
+                                    <TextBlock Text="Datos Generales" FontSize="16" FontWeight="Bold"
+                                               Foreground="{StaticResource AccentBrush}" Margin="0,0,0,15"/>
 
                                     <TextBlock Text="Fecha de Registro" Style="{StaticResource InputLabel}"/>
                                     <Border Style="{StaticResource SquareInputStyle}">
-                                        <DatePicker x:Name="dpFecha" BorderThickness="0" VerticalContentAlignment="Center" Background="Transparent"/>
+                                        <DatePicker x:Name="dpFecha" BorderThickness="0"
+                                                    VerticalContentAlignment="Center" Background="Transparent"/>
                                     </Border>
 
                                     <TextBlock Text="Responsable / Técnico" Style="{StaticResource InputLabel}"/>
                                     <Border Style="{StaticResource SquareInputStyle}">
-                                        <TextBox x:Name="txtResponsable" Background="Transparent" BorderThickness="0" VerticalContentAlignment="Center" Padding="5,0"/>
+                                        <TextBox x:Name="txtResponsable" Background="Transparent" BorderThickness="0"
+                                                 VerticalContentAlignment="Center" Padding="5,0"/>
                                     </Border>
 
                                     <Separator Background="#20000000" Margin="0,20,0,20"/>
 
-                                    <TextBlock Text="Total Acumulado:" FontWeight="Bold" Foreground="{StaticResource PrimaryTextBrush}"/>
-                                    <TextBlock x:Name="lblTotal" Text="$ 0.00" FontSize="32" FontWeight="Black" Foreground="{StaticResource PrimaryTextBrush}" Margin="0,5,0,0"/>
+                                    <TextBlock Text="Total Acumulado:"
+                                               FontWeight="Bold"
+                                               Foreground="{StaticResource PrimaryTextBrush}"/>
+                                    <TextBlock x:Name="lblTotal"
+                                               Text="$ 0.00"
+                                               FontSize="32"
+                                               FontWeight="Black"
+                                               Foreground="{StaticResource PrimaryTextBrush}"
+                                               Margin="0,5,0,0"/>
 
-                                    <Button Content="GUARDAR TODO" Click="BtnGuardar_Click" Margin="0,30,0,0" Style="{StaticResource SquarePrimaryButton}"/>
+                                    <Button Content="GUARDAR TODO"
+                                            Click="BtnGuardar_Click"
+                                            Margin="0,30,0,0"
+                                            Style="{StaticResource SquarePrimaryButton}"/>
                                 </StackPanel>
                             </Border>
 
@@ -322,7 +328,10 @@
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
 
-                                <Border Grid.Row="0" Background="{StaticResource WhiteBrush}" CornerRadius="8" Padding="15" Margin="0,0,0,15" BorderBrush="#20000000" BorderThickness="1">
+                                <!-- FORM DETALLE -->
+                                <Border Grid.Row="0" Background="{StaticResource WhiteBrush}" CornerRadius="8"
+                                        Padding="15" Margin="0,0,0,15"
+                                        BorderBrush="#20000000" BorderThickness="1">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="2*"/>
@@ -334,41 +343,59 @@
                                         <StackPanel Grid.Column="0" Margin="0,0,10,0">
                                             <TextBlock Text="Activo" Style="{StaticResource InputLabel}"/>
                                             <Border Style="{StaticResource SquareInputStyle}" Margin="0">
-                                                <ComboBox x:Name="cboActivo" BorderThickness="0" Background="Transparent" VerticalContentAlignment="Center"/>
+                                                <ComboBox x:Name="cboActivo" BorderThickness="0"
+                                                          Background="Transparent"
+                                                          VerticalContentAlignment="Center"/>
                                             </Border>
                                         </StackPanel>
 
                                         <StackPanel Grid.Column="1" Margin="0,0,10,0">
                                             <TextBlock Text="Actividad" Style="{StaticResource InputLabel}"/>
                                             <Border Style="{StaticResource SquareInputStyle}" Margin="0">
-                                                <ComboBox x:Name="cboActividad" BorderThickness="0" Background="Transparent" VerticalContentAlignment="Center"/>
+                                                <ComboBox x:Name="cboActividad" BorderThickness="0"
+                                                          Background="Transparent"
+                                                          VerticalContentAlignment="Center"/>
                                             </Border>
                                         </StackPanel>
 
                                         <StackPanel Grid.Column="2" Margin="0,0,10,0">
                                             <TextBlock Text="Costo Estimado ($)" Style="{StaticResource InputLabel}"/>
                                             <Border Style="{StaticResource SquareInputStyle}" Margin="0">
-                                                <TextBox x:Name="txtCosto" Background="Transparent" BorderThickness="0" VerticalContentAlignment="Center" Padding="5,0"/>
+                                                <TextBox x:Name="txtCosto" Background="Transparent" BorderThickness="0"
+                                                         VerticalContentAlignment="Center" Padding="5,0"/>
                                             </Border>
                                         </StackPanel>
 
-                                        <Button Grid.Column="3" Click="BtnAgregar_Click" Width="40" Height="40" VerticalAlignment="Bottom" Style="{StaticResource SquarePrimaryButton}">
+                                        <Button Grid.Column="3"
+                                                Click="BtnAgregar_Click"
+                                                Width="40" Height="40"
+                                                VerticalAlignment="Bottom"
+                                                Style="{StaticResource SquarePrimaryButton}">
                                             <TextBlock Text="+" FontSize="20" FontWeight="Bold" Margin="0,-2,0,0"/>
                                         </Button>
                                     </Grid>
                                 </Border>
 
+                                <!-- GRID DETALLE -->
                                 <Border Grid.Row="1" Background="Transparent" CornerRadius="8">
-                                    <DataGrid x:Name="gridDetalle">
+                                    <DataGrid x:Name="gridDetalle" AutoGenerateColumns="False">
                                         <DataGrid.Columns>
-                                            <DataGridTextColumn Header="ACTIVO" Binding="{Binding NombreActivo}" Width="*"/>
-                                            <DataGridTextColumn Header="ACTIVIDAD" Binding="{Binding NombreActividad}" Width="*"/>
-                                            <DataGridTextColumn Header="COSTO" Binding="{Binding Valor, StringFormat=C2}" Width="100" FontWeight="Bold"/>
+                                            <DataGridTextColumn Header="ACTIVO"
+                                                                Binding="{Binding NombreActivo}" Width="*"/>
+                                            <DataGridTextColumn Header="ACTIVIDAD"
+                                                                Binding="{Binding NombreActividad}" Width="*"/>
+                                            <DataGridTextColumn Header="COSTO"
+                                                                Binding="{Binding Valor, StringFormat=C2}"
+                                                                Width="100" FontWeight="Bold"/>
                                             <DataGridTemplateColumn Width="50">
                                                 <DataGridTemplateColumn.CellTemplate>
                                                     <DataTemplate>
-                                                        <Button Click="BtnQuitarDetalle_Click" Style="{StaticResource GridActionButton}" ToolTip="Quitar">
-                                                            <Path Data="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" Fill="{StaticResource DangerBrush}" Width="14" Height="14" Stretch="Uniform"/>
+                                                        <Button Click="BtnQuitarDetalle_Click"
+                                                                Style="{StaticResource GridActionButton}"
+                                                                ToolTip="Quitar">
+                                                            <Path Data="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"
+                                                                  Fill="{StaticResource DangerBrush}"
+                                                                  Width="14" Height="14" Stretch="Uniform"/>
                                                         </Button>
                                                     </DataTemplate>
                                                 </DataGridTemplateColumn.CellTemplate>
@@ -380,7 +407,7 @@
                         </Grid>
                     </TabItem>
 
-                    <!-- PESTAÑA 2: CATÁLOGOS (CORREGIDO EL BUG DE OVERLAP) -->
+                    <!-- TAB 2: CATÁLOGOS -->
                     <TabItem Header="CATÁLOGOS">
                         <Grid Margin="0,20,0,0">
                             <Grid.ColumnDefinitions>
@@ -388,76 +415,111 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
-                            <!-- ACTIVIDADES (Panel Izquierdo) -->
-                            <Border Grid.Column="0" Background="{StaticResource WhiteBrush}" CornerRadius="8" Padding="20" Margin="0,0,10,0" BorderBrush="#20000000" BorderThickness="1">
+                            <!-- ACTIVIDADES -->
+                            <Border Grid.Column="0" Background="{StaticResource WhiteBrush}" CornerRadius="8"
+                                    Padding="20" Margin="0,0,10,0"
+                                    BorderBrush="#20000000" BorderThickness="1">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
-                                        <!-- Título -->
                                         <RowDefinition Height="Auto"/>
-                                        <!-- Buscador -->
                                         <RowDefinition Height="Auto"/>
-                                        <!-- Formulario -->
                                         <RowDefinition Height="*"/>
-                                        <!-- Tabla -->
                                     </Grid.RowDefinitions>
 
-                                    <!-- Título -->
-                                    <TextBlock Grid.Row="0" Text="Catálogo de Actividades" FontSize="16" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,15"/>
+                                    <TextBlock Grid.Row="0"
+                                               Text="Actividades"
+                                               FontSize="16"
+                                               FontWeight="Bold"
+                                               Foreground="{StaticResource AccentBrush}"
+                                               Margin="0,0,0,15"/>
 
-                                    <!-- Buscador -->
                                     <StackPanel Grid.Row="1" Margin="0,0,0,10">
                                         <TextBlock Text="Buscar" Style="{StaticResource InputLabel}"/>
                                         <Border Style="{StaticResource SquareInputStyle}">
-                                            <TextBox x:Name="txtBuscarActividad" Background="Transparent" BorderThickness="0" VerticalContentAlignment="Center" 
-                                                     TextChanged="TxtBuscarActividad_TextChanged"/>
+                                            <TextBox x:Name="txtBuscarActividad"
+                                                     TextChanged="TxtBuscarActividad_TextChanged"
+                                                     Background="Transparent"
+                                                     BorderThickness="0"
+                                                     VerticalContentAlignment="Center"/>
                                         </Border>
                                     </StackPanel>
 
-                                    <!-- Formulario -->
                                     <Grid Grid.Row="2" Margin="0,0,0,15">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="80"/>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
 
                                         <StackPanel Grid.Column="0" Margin="0,0,5,0">
                                             <TextBlock Text="Código" Style="{StaticResource InputLabel}"/>
-                                            <Border Style="{StaticResource SquareInputStyle}" Height="35" Margin="0">
-                                                <TextBox x:Name="txtCodAct" Background="Transparent" BorderThickness="0" VerticalContentAlignment="Center" Padding="5,0"/>
+                                            <Border Style="{StaticResource SquareInputStyle}" Margin="0">
+                                                <TextBox x:Name="txtCodAct"
+                                                         Background="Transparent"
+                                                         BorderThickness="0"
+                                                         VerticalContentAlignment="Center"
+                                                         Padding="5,0"/>
                                             </Border>
                                         </StackPanel>
 
                                         <StackPanel Grid.Column="1" Margin="0,0,5,0">
                                             <TextBlock Text="Descripción" Style="{StaticResource InputLabel}"/>
-                                            <Border Style="{StaticResource SquareInputStyle}" Height="35" Margin="0">
-                                                <TextBox x:Name="txtNomAct" Background="Transparent" BorderThickness="0" VerticalContentAlignment="Center" Padding="5,0"/>
+                                            <Border Style="{StaticResource SquareInputStyle}" Margin="0">
+                                                <TextBox x:Name="txtNomAct"
+                                                         Background="Transparent"
+                                                         BorderThickness="0"
+                                                         VerticalContentAlignment="Center"
+                                                         Padding="5,0"/>
                                             </Border>
                                         </StackPanel>
 
-                                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Bottom">
-                                            <Button Click="BtnNuevaActividad_Click" Width="35" Height="35" Margin="0,0,5,0" Style="{StaticResource SquareSecondaryButton}" ToolTip="Limpiar Campos">
-                                                <Path Data="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" Fill="{StaticResource PrimaryTextBrush}" Width="12" Height="12" Stretch="Uniform"/>
-                                            </Button>
-                                            <Button Content="Guardar" Click="BtnGuardarActividad_Click" Width="70" Height="35" Style="{StaticResource SquarePrimaryButton}"/>
-                                        </StackPanel>
+                                        <Button Grid.Column="2"
+                                                Click="BtnNuevaActividad_Click"
+                                                Width="35" Height="40"
+                                                Margin="0,20,5,0"
+                                                Style="{StaticResource SquareSecondaryButton}"
+                                                ToolTip="Limpiar">
+                                            <Path Data="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"
+                                                  Fill="{StaticResource PrimaryTextBrush}"
+                                                  Width="12" Height="12" Stretch="Uniform"/>
+                                        </Button>
+
+                                        <Button Grid.Column="3"
+                                                Content="Guardar"
+                                                Click="BtnGuardarActividad_Click"
+                                                Width="80" Height="40"
+                                                Margin="0,20,0,0"
+                                                Style="{StaticResource SquarePrimaryButton}"/>
                                     </Grid>
 
-                                    <!-- Tabla -->
                                     <DataGrid Grid.Row="3" x:Name="gridActividades">
                                         <DataGrid.Columns>
-                                            <DataGridTextColumn Header="CÓD" Binding="{Binding Id}" Width="60" FontWeight="SemiBold"/>
-                                            <DataGridTextColumn Header="DESCRIPCIÓN" Binding="{Binding Descripcion}" Width="*"/>
+                                            <DataGridTextColumn Header="CÓD"
+                                                                Binding="{Binding Id}"
+                                                                Width="60" FontWeight="SemiBold"/>
+                                            <DataGridTextColumn Header="DESCRIPCIÓN"
+                                                                Binding="{Binding Descripcion}"
+                                                                Width="*"/>
                                             <DataGridTemplateColumn Width="80" Header="ACCIONES">
                                                 <DataGridTemplateColumn.CellTemplate>
                                                     <DataTemplate>
                                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                                            <Button Click="BtnEditarActividad_Click" Style="{StaticResource GridActionButton}" Margin="0,0,5,0" ToolTip="Editar">
-                                                                <Path Data="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z" Fill="{StaticResource PrimaryTextBrush}" Width="14" Height="14" Stretch="Uniform"/>
+                                                            <Button Click="BtnEditarActividad_Click"
+                                                                    Style="{StaticResource GridActionButton}"
+                                                                    Margin="0,0,5,0"
+                                                                    ToolTip="Editar">
+                                                                <Path Data="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z"
+                                                                      Fill="{StaticResource PrimaryTextBrush}"
+                                                                      Width="14" Height="14" Stretch="Uniform"/>
                                                             </Button>
-                                                            <Button Click="BtnEliminarActividad_Click" Style="{StaticResource GridActionButton}" ToolTip="Eliminar">
-                                                                <Path Data="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" Fill="{StaticResource DangerBrush}" Width="14" Height="14" Stretch="Uniform"/>
+                                                            <Button Click="BtnEliminarActividad_Click"
+                                                                    Style="{StaticResource GridActionButton}"
+                                                                    ToolTip="Eliminar">
+                                                                <Path Data="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"
+                                                                      Fill="{StaticResource DangerBrush}"
+                                                                      Width="14" Height="14" Stretch="Uniform"/>
                                                             </Button>
                                                         </StackPanel>
                                                     </DataTemplate>
@@ -468,76 +530,111 @@
                                 </Grid>
                             </Border>
 
-                            <!-- ACTIVOS (Panel Derecho) -->
-                            <Border Grid.Column="1" Background="{StaticResource WhiteBrush}" CornerRadius="8" Padding="20" Margin="10,0,0,0" BorderBrush="#20000000" BorderThickness="1">
+                            <!-- ACTIVOS -->
+                            <Border Grid.Column="1" Background="{StaticResource WhiteBrush}" CornerRadius="8"
+                                    Padding="20" Margin="10,0,0,0"
+                                    BorderBrush="#20000000" BorderThickness="1">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
-                                        <!-- Título -->
                                         <RowDefinition Height="Auto"/>
-                                        <!-- Buscador -->
                                         <RowDefinition Height="Auto"/>
-                                        <!-- Formulario -->
                                         <RowDefinition Height="*"/>
-                                        <!-- Tabla -->
                                     </Grid.RowDefinitions>
 
-                                    <!-- Título -->
-                                    <TextBlock Grid.Row="0" Text="Catálogo de Activos" FontSize="16" FontWeight="Bold" Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,0,15"/>
+                                    <TextBlock Grid.Row="0"
+                                               Text="Activos"
+                                               FontSize="16"
+                                               FontWeight="Bold"
+                                               Foreground="{StaticResource PrimaryTextBrush}"
+                                               Margin="0,0,0,15"/>
 
-                                    <!-- Buscador -->
                                     <StackPanel Grid.Row="1" Margin="0,0,0,10">
                                         <TextBlock Text="Buscar" Style="{StaticResource InputLabel}"/>
                                         <Border Style="{StaticResource SquareInputStyle}">
-                                            <TextBox x:Name="txtBuscarActivo" Background="Transparent" BorderThickness="0" VerticalContentAlignment="Center" 
-                                                     TextChanged="TxtBuscarActivo_TextChanged"/>
+                                            <TextBox x:Name="txtBuscarActivo"
+                                                     TextChanged="TxtBuscarActivo_TextChanged"
+                                                     Background="Transparent"
+                                                     BorderThickness="0"
+                                                     VerticalContentAlignment="Center"/>
                                         </Border>
                                     </StackPanel>
 
-                                    <!-- Formulario -->
                                     <Grid Grid.Row="2" Margin="0,0,0,15">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="80"/>
                                             <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
 
                                         <StackPanel Grid.Column="0" Margin="0,0,5,0">
                                             <TextBlock Text="ID" Style="{StaticResource InputLabel}"/>
                                             <Border Style="{StaticResource SquareInputStyle}" Height="35" Margin="0">
-                                                <TextBox x:Name="txtIdActivo" Background="Transparent" BorderThickness="0" VerticalContentAlignment="Center" Padding="5,0"/>
+                                                <TextBox x:Name="txtIdActivo"
+                                                         Background="Transparent"
+                                                         BorderThickness="0"
+                                                         VerticalContentAlignment="Center"
+                                                         Padding="5,0"/>
                                             </Border>
                                         </StackPanel>
 
                                         <StackPanel Grid.Column="1" Margin="0,0,5,0">
                                             <TextBlock Text="Nombre del Activo" Style="{StaticResource InputLabel}"/>
                                             <Border Style="{StaticResource SquareInputStyle}" Height="35" Margin="0">
-                                                <TextBox x:Name="txtNomActivo" Background="Transparent" BorderThickness="0" VerticalContentAlignment="Center" Padding="5,0"/>
+                                                <TextBox x:Name="txtNomActivo"
+                                                         Background="Transparent"
+                                                         BorderThickness="0"
+                                                         VerticalContentAlignment="Center"
+                                                         Padding="5,0"/>
                                             </Border>
                                         </StackPanel>
 
-                                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Bottom">
-                                            <Button Click="BtnNuevoActivo_Click" Width="35" Height="35" Margin="0,0,5,0" Style="{StaticResource SquareSecondaryButton}" ToolTip="Limpiar Campos">
-                                                <Path Data="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" Fill="{StaticResource PrimaryTextBrush}" Width="12" Height="12" Stretch="Uniform"/>
-                                            </Button>
-                                            <Button Content="Guardar" Click="BtnGuardarActivo_Click" Width="70" Height="35" Style="{StaticResource SquarePrimaryButton}"/>
-                                        </StackPanel>
+                                        <Button Grid.Column="2"
+                                                Click="BtnNuevoActivo_Click"
+                                                Width="35" Height="35"
+                                                Margin="0,20,5,0"
+                                                Style="{StaticResource SquareSecondaryButton}"
+                                                ToolTip="Limpiar">
+                                            <Path Data="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"
+                                                  Fill="{StaticResource PrimaryTextBrush}"
+                                                  Width="12" Height="12" Stretch="Uniform"/>
+                                        </Button>
+
+                                        <Button Grid.Column="3"
+                                                Content="Guardar"
+                                                Click="BtnGuardarActivo_Click"
+                                                Width="80" Height="35"
+                                                Margin="0,20,0,0"
+                                                Style="{StaticResource SquarePrimaryButton}"/>
                                     </Grid>
 
-                                    <!-- Tabla -->
                                     <DataGrid Grid.Row="3" x:Name="gridActivos">
                                         <DataGrid.Columns>
-                                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60" FontWeight="SemiBold"/>
-                                            <DataGridTextColumn Header="DESCRIPCIÓN" Binding="{Binding Descripcion}" Width="*"/>
+                                            <DataGridTextColumn Header="ID"
+                                                                Binding="{Binding Id}"
+                                                                Width="60" FontWeight="SemiBold"/>
+                                            <DataGridTextColumn Header="DESCRIPCIÓN"
+                                                                Binding="{Binding Descripcion}"
+                                                                Width="*"/>
                                             <DataGridTemplateColumn Width="80" Header="ACCIONES">
                                                 <DataGridTemplateColumn.CellTemplate>
                                                     <DataTemplate>
                                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                                            <Button Click="BtnEditarActivo_Click" Style="{StaticResource GridActionButton}" Margin="0,0,5,0" ToolTip="Editar">
-                                                                <Path Data="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z" Fill="{StaticResource PrimaryTextBrush}" Width="14" Height="14" Stretch="Uniform"/>
+                                                            <Button Click="BtnEditarActivo_Click"
+                                                                    Style="{StaticResource GridActionButton}"
+                                                                    Margin="0,0,5,0"
+                                                                    ToolTip="Editar">
+                                                                <Path Data="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z"
+                                                                      Fill="{StaticResource PrimaryTextBrush}"
+                                                                      Width="14" Height="14" Stretch="Uniform"/>
                                                             </Button>
-                                                            <Button Click="BtnEliminarActivo_Click" Style="{StaticResource GridActionButton}" ToolTip="Eliminar">
-                                                                <Path Data="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" Fill="{StaticResource DangerBrush}" Width="14" Height="14" Stretch="Uniform"/>
+                                                            <Button Click="BtnEliminarActivo_Click"
+                                                                    Style="{StaticResource GridActionButton}"
+                                                                    ToolTip="Eliminar">
+                                                                <Path Data="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"
+                                                                      Fill="{StaticResource DangerBrush}"
+                                                                      Width="14" Height="14" Stretch="Uniform"/>
                                                             </Button>
                                                         </StackPanel>
                                                     </DataTemplate>
@@ -550,78 +647,71 @@
                         </Grid>
                     </TabItem>
 
-                    <!-- PESTAÑA 3: REPORTES (MEJORADO CON DISEÑO TIPO TABLA PRO) -->
+                    <!-- TAB 3: REPORTES -->
                     <TabItem Header="REPORTES">
                         <Grid Margin="0,20,0,0">
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="140"/>
+                                <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
 
-                            <!-- TARJETAS DE SELECCIÓN DE REPORTE -->
-                            <Grid Grid.Row="0" Margin="0,0,0,20">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
+                            <Border Grid.Row="0" Background="{StaticResource WhiteBrush}" CornerRadius="8"
+                                    Padding="15" Margin="0,0,0,20"
+                                    BorderBrush="#20000000" BorderThickness="1">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <TextBlock Text="📅 Rango:" VerticalAlignment="Center"
+                                               FontWeight="Bold"
+                                               Foreground="{StaticResource PrimaryTextBrush}"
+                                               Margin="0,0,15,0"/>
 
-                                <!-- Tarjeta 1: Gastos -->
-                                <Button Grid.Column="0" Margin="0,0,10,0" Click="BtnRepGastos_Click" Style="{StaticResource ReportCardButton}">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Border Background="#FFE8E9" Width="60" Height="60" CornerRadius="30" VerticalAlignment="Center">
-                                            <Path Data="M19,3H5C3.9,3 3,3.9 3,5V19C3,20.1 3.9,21 5,21H19C20.1,21 21,20.1 21,19V5C21,3.9 20.1,3 19,3M9,17H7V10H9V17M13,17H11V7H13V17M17,17H15V13H17V17Z" 
-                                                  Fill="{StaticResource AccentBrush}" Width="30" Height="30" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        </Border>
-                                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="15,0,0,0">
-                                            <TextBlock Text="Gastos por Activo" FontSize="18" FontWeight="Bold" Foreground="{StaticResource PrimaryTextBrush}"/>
-                                            <TextBlock Text="Visualiza los costos acumulados por equipo y fecha." FontSize="12" Foreground="#666" TextWrapping="Wrap" Margin="0,5,0,0"/>
-                                        </StackPanel>
-                                    </Grid>
-                                </Button>
-
-                                <!-- Tarjeta 2: Matriz -->
-                                <Button Grid.Column="1" Margin="10,0,0,0" Click="BtnRepMatriz_Click" Style="{StaticResource ReportCardButton}">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Border Background="#E0F2F1" Width="60" Height="60" CornerRadius="30" VerticalAlignment="Center">
-                                            <Path Data="M5,5H19A2,2 0 0,1 21,7V17A2,2 0 0,1 19,19H5A2,2 0 0,1 3,17V7A2,2 0 0,1 5,5M5,7V10H9V7H5M11,7V10H14V7H11M16,7V10H19V7H16M5,12V15H9V12H5M11,12V15H14V12H11M16,12V15H19V12H16Z" 
-                                                  Fill="{StaticResource PrimaryTextBrush}" Width="30" Height="30" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        </Border>
-                                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="15,0,0,0">
-                                            <TextBlock Text="Matriz Cruzada" FontSize="18" FontWeight="Bold" Foreground="{StaticResource PrimaryTextBrush}"/>
-                                            <TextBlock Text="Análisis de actividades realizadas vs activos." FontSize="12" Foreground="#666" TextWrapping="Wrap" Margin="0,5,0,0"/>
-                                        </StackPanel>
-                                    </Grid>
-                                </Button>
-                            </Grid>
-
-                            <!-- ÁREA DE RESULTADOS CON ESTILO MEJORADO -->
-                            <Border Grid.Row="1" Background="{StaticResource WhiteBrush}" CornerRadius="8" BorderBrush="#E0E0E0" BorderThickness="1" ClipToBounds="True">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="*"/>
-                                    </Grid.RowDefinitions>
-
-                                    <!-- Título de la Sección de Resultados -->
-                                    <Border Background="#F5F5F5" Padding="20,15" BorderBrush="#E0E0E0" BorderThickness="0,0,0,1">
-                                        <TextBlock Text="Resultados del Informe Generado" FontSize="16" FontWeight="Bold" Foreground="{StaticResource PrimaryTextBrush}"/>
+                                    <TextBlock Text="Desde" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                    <Border Style="{StaticResource SquareInputStyle}" Width="140" Margin="0">
+                                        <DatePicker x:Name="dpDesde" BorderThickness="0"
+                                                    VerticalContentAlignment="Center"/>
                                     </Border>
 
-                                    <!-- Aplicamos el nuevo estilo ReportDataGrid -->
-                                    <DataGrid Grid.Row="1" x:Name="gridReportes" Style="{StaticResource ReportDataGrid}" IsReadOnly="True" AutoGenerateColumns="True" Margin="0"/>
+                                    <TextBlock Text="Hasta" VerticalAlignment="Center" Margin="15,0,5,0"/>
+                                    <Border Style="{StaticResource SquareInputStyle}" Width="140" Margin="0">
+                                        <DatePicker x:Name="dpHasta" BorderThickness="0"
+                                                    VerticalContentAlignment="Center"/>
+                                    </Border>
+
+                                    <Button Content="Ver Gastos por Activo"
+                                            Click="BtnRepGastos_Click"
+                                            Width="180" Height="40"
+                                            Margin="30,0,10,0"
+                                            Style="{StaticResource SquarePrimaryButton}"/>
+                                    <Button Content="Ver Matriz Cruzada"
+                                            Click="BtnRepMatriz_Click"
+                                            Width="180" Height="40"
+                                            Style="{StaticResource SquarePrimaryButton}"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Grid.Row="1" Background="{StaticResource WhiteBrush}" CornerRadius="8"
+                                    Padding="10" BorderBrush="#20000000" BorderThickness="1">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <DataGrid Grid.Row="0"
+                                              x:Name="gridReportes"
+                                              Style="{StaticResource ReportDataGrid}"
+                                              AutoGenerateColumns="True"/>
+
+                                    <Button Grid.Row="1"
+                                            Content="📂 Exportar a Excel (CSV)"
+                                            Click="BtnExportar_Click"
+                                            HorizontalAlignment="Right"
+                                            Margin="0,15,0,0"
+                                            Width="220"
+                                            Style="{StaticResource SquarePrimaryButton}"/>
                                 </Grid>
                             </Border>
                         </Grid>
                     </TabItem>
-
                 </TabControl>
             </Grid>
         </Border>

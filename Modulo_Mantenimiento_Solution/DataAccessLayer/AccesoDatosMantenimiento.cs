@@ -248,80 +248,6 @@ namespace DataAccesLayer
             }
         }
 
-        public List<ReporteGastoDTO> ReporteGastosPorActivo()
-        {
-            var lista = new List<ReporteGastoDTO>();
-            try
-            {
-                using (OracleConnection conn = new OracleConnection(connectionString))
-                {
-                    conn.Open();
-                    // Suma agrupada por nombre de activo
-                    string sql = @"SELECT a.nombre, SUM(d.valor) as total 
-                           FROM DetalleMantenimiento d 
-                           JOIN ActivoMantenimiento a ON d.activo_id = a.activo_id 
-                           GROUP BY a.nombre
-                           ORDER BY total DESC";
-
-                    using (OracleCommand cmd = new OracleCommand(sql, conn))
-                    {
-                        using (OracleDataReader reader = cmd.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                lista.Add(new ReporteGastoDTO
-                                {
-                                    NombreActivo = reader["nombre"].ToString(),
-                                    // Manejo de nulos por si acaso
-                                    TotalGasto = reader["total"] == DBNull.Value ? 0 : Convert.ToDecimal(reader["total"])
-                                });
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex) { Console.WriteLine("Error Reporte 1: " + ex.Message); }
-            return lista;
-        }
-
-        // REPORTE 2: MATRIZ CRUZADA (DATOS PLANOS)
-        public List<ReporteMatrizDTO> ReporteMatrizDatos()
-        {
-            var lista = new List<ReporteMatrizDTO>();
-            try
-            {
-                using (OracleConnection conn = new OracleConnection(connectionString))
-                {
-                    conn.Open();
-                    // Traemos Activo - Actividad - Valor (El pivoteo visual se hace en frontend o se muestra plano)
-                    string sql = @"SELECT a.nombre as activo, act.nombre as actividad, SUM(d.valor) as valor
-                           FROM DetalleMantenimiento d 
-                           JOIN ActivoMantenimiento a ON d.activo_id = a.activo_id 
-                           JOIN ActividadMantenimiento act ON d.actividad_codigo = act.codigo
-                           GROUP BY a.nombre, act.nombre
-                           ORDER BY a.nombre";
-
-                    using (OracleCommand cmd = new OracleCommand(sql, conn))
-                    {
-                        using (OracleDataReader reader = cmd.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                lista.Add(new ReporteMatrizDTO
-                                {
-                                    Activo = reader["activo"].ToString(),
-                                    Actividad = reader["actividad"].ToString(),
-                                    Valor = Convert.ToDecimal(reader["valor"])
-                                });
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex) { Console.WriteLine("Error Reporte 2: " + ex.Message); }
-            return lista;
-        }
-
         // MODIFICAR ACTIVO
         public bool ModificarActivo(ActivoMantenimiento item)
         {
@@ -375,6 +301,122 @@ namespace DataAccesLayer
                 Console.WriteLine("Error Eliminar Activo: " + ex.Message);
                 return false;
             }
+        }
+
+        // --- REPORTE 1: GASTOS POR ACTIVO ---
+        public List<ReporteGastoDTO> ReporteGastosPorActivo(DateTime inicio, DateTime fin)
+        {
+            var lista = new List<ReporteGastoDTO>();
+            try
+            {
+                using (OracleConnection conn = new OracleConnection(connectionString))
+                {
+                    conn.Open();
+
+                    string sql = @"
+                            SELECT
+                                a.nombre AS nombre_activo,
+                                SUM(d.valor) AS costo_total  
+                            FROM
+                                DetalleMantenimiento d
+                            JOIN
+                                CabeceraMantenimiento c ON d.cabecera_mantenimiento_id = c.cabecera_mantenimiento_id
+                            JOIN
+                                ActivoMantenimiento a ON d.activo_id = a.activo_id
+                            WHERE
+                                -- SINTAXIS CORREGIDA: Uso directo del parámetro nativo (ODP.NET lo tipa como DATE)
+                                c.fecha >= :p_ini
+                                AND c.fecha < :p_fin + 1
+                            GROUP BY
+                                a.nombre
+                            ORDER BY
+                                costo_total DESC"; // <--- SIN PUNTO Y COMA FINAL
+                                                   // (Para evitar ORA-00933)
+
+                    using (OracleCommand cmd = new OracleCommand(sql, conn))
+                    {
+                        cmd.BindByName = true;
+                        cmd.Parameters.Add("p_ini", OracleDbType.Date).Value = inicio;
+                        cmd.Parameters.Add("p_fin", OracleDbType.Date).Value = fin;
+
+                        using (OracleDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                lista.Add(new ReporteGastoDTO
+                                {
+                                    NombreActivo = reader["nombre_activo"].ToString(),
+                                    TotalGasto = reader["costo_total"] == DBNull.Value ? 0 : Convert.ToDecimal(reader["costo_total"])
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error Reporte 1: " + ex.Message);
+            }
+            return lista;
+        }
+        public List<ReporteMatrizDTO> ReporteMatrizDatos(DateTime inicio, DateTime fin)
+        {
+            var lista = new List<ReporteMatrizDTO>();
+            try
+            {
+                using (OracleConnection conn = new OracleConnection(connectionString))
+                {
+                    conn.Open();
+
+                    string sql = @"SELECT
+                                a.nombre AS activo,
+                                act.nombre AS actividad,
+                                SUM(d.valor) AS valor_total
+                            FROM
+                                DetalleMantenimiento d
+                            JOIN
+                                CabeceraMantenimiento c ON d.cabecera_mantenimiento_id = c.cabecera_mantenimiento_id
+                            JOIN
+                                ActivoMantenimiento a ON d.activo_id = a.activo_id
+                            JOIN
+                                ActividadMantenimiento act ON d.actividad_codigo = act.codigo
+                            WHERE
+                                -- SINTAXIS CORREGIDA: Uso directo del parámetro nativo
+                                c.fecha >= :p_ini
+                                AND c.fecha < :p_fin + 1
+                            GROUP BY
+                                a.nombre,
+                                act.nombre
+                            ORDER BY
+                                a.nombre,
+                                valor_total DESC"; // <--- SIN PUNTO Y COMA FINAL
+
+                    using (OracleCommand cmd = new OracleCommand(sql, conn))
+                    {
+                        cmd.BindByName = true;
+                        cmd.Parameters.Add("p_ini", OracleDbType.Date).Value = inicio;
+                        cmd.Parameters.Add("p_fin", OracleDbType.Date).Value = fin;
+
+                        using (OracleDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                lista.Add(new ReporteMatrizDTO
+                                {
+                                    Activo = reader["activo"].ToString(),
+                                    Actividad = reader["actividad"].ToString(),
+                                    Valor = Convert.ToDecimal(reader["valor_total"])
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error Reporte 2: " + ex.Message);
+            }
+            return lista;
         }
     }
 }
