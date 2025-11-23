@@ -7,38 +7,44 @@
         MouseDown="Window_MouseDown">
 
     <Window.Resources>
-        <Color x:Key="BaseColor">#EBECF0</Color>
-        <SolidColorBrush x:Key="BaseBrush" Color="{StaticResource BaseColor}"/>
-        <SolidColorBrush x:Key="TextBrush" Color="#5A667F"/>
-        <SolidColorBrush x:Key="AccentBrush" Color="#4D7CFE"/>
+        <SolidColorBrush x:Key="SurfaceBrush" Color="#F2F0E9"/>
+        <SolidColorBrush x:Key="PrimaryTextBrush" Color="#023E38"/>
+        <SolidColorBrush x:Key="AccentBrush" Color="#D92027"/>
+
+        <LinearGradientBrush x:Key="BackgroundGradient" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#023E38" Offset="0.0"/>
+            <GradientStop Color="#012925" Offset="1.0"/>
+        </LinearGradientBrush>
 
         <Style x:Key="ModuleCardStyle" TargetType="Button">
-            <Setter Property="Background" Value="{StaticResource BaseBrush}"/>
-            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+            <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}"/>
             <Setter Property="Margin" Value="15"/>
             <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Height" Value="160"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Grid>
-                            <Border x:Name="shadow" CornerRadius="20" Background="{StaticResource BaseBrush}">
+                            <Border CornerRadius="20" Background="Black" Opacity="0.2" Margin="0,5,0,-5">
                                 <Border.Effect>
-                                    <DropShadowEffect Color="#A6ABBD" Direction="315" ShadowDepth="6" BlurRadius="12" Opacity="0.5"/>
+                                    <BlurEffect Radius="15"/>
                                 </Border.Effect>
                             </Border>
-                            <Border CornerRadius="20" Background="Transparent" Margin="-2,-2,0,0">
-                                <Border.Effect>
-                                    <DropShadowEffect Color="#FFFFFF" Direction="135" ShadowDepth="3" BlurRadius="5" Opacity="0.8"/>
-                                </Border.Effect>
-                            </Border>
+
                             <Border x:Name="border" CornerRadius="20" Background="{TemplateBinding Background}" BorderThickness="0">
                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#F0F3F7"/>
-                                <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+                                <Setter TargetName="border" Property="Background" Value="#D92027"/>
+                                <Setter Property="Foreground" Value="White"/>
+                                <Setter TargetName="border" Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect Color="#D92027" BlurRadius="20" ShadowDepth="0" Opacity="0.6"/>
+                                    </Setter.Value>
+                                </Setter>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="border" Property="RenderTransform">
@@ -52,13 +58,31 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <Style x:Key="LogoutButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#FF8A8A"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="Transparent" Padding="10,5">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="#FF4D4D"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
-    <Border Background="{StaticResource BaseBrush}" CornerRadius="30" Padding="30">
-        <Border.Effect>
-            <DropShadowEffect Color="#000000" BlurRadius="30" ShadowDepth="0" Opacity="0.2"/>
-        </Border.Effect>
-
+    <Border Background="{StaticResource BackgroundGradient}">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -67,66 +91,71 @@
             </Grid.RowDefinitions>
 
             <!-- HEADER -->
-            <StackPanel Grid.Row="0" Margin="0,0,0,30">
-                <TextBlock Text="MÓDULO DE CONTABILIDAD" FontSize="28" FontWeight="Bold" Foreground="{StaticResource TextBrush}" HorizontalAlignment="Center"/>
-                <TextBlock Text="Gestión del Plan de Cuentas, Comprobantes y Reportes" FontSize="14" Foreground="#8898AA" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+            <StackPanel Grid.Row="0" Margin="40,30,40,20">
+                <TextBlock Text="MÓDULO DE CONTABILIDAD" FontSize="28" FontWeight="Black" Foreground="{StaticResource SurfaceBrush}" Opacity="0.9" HorizontalAlignment="Center"/>
+                <TextBlock Text="Gestión del Plan de Cuentas, Comprobantes y Reportes" FontSize="16" Foreground="#60FFFFFF" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                <Separator Background="#30FFFFFF" Margin="0,20,0,0"/>
             </StackPanel>
 
             <!-- OPCIONES -->
-            <UniformGrid Grid.Row="1" Columns="3" Rows="2">
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="30,0">
+                <UniformGrid Columns="3" Rows="2">
 
-                <!-- PANTALLA SIMPLE 1 -->
-                <Button Style="{StaticResource ModuleCardStyle}" Click="BtnTipoCuenta_Click">
-                    <StackPanel>
-                        <TextBlock Text="📋" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,10"/>
-                        <TextBlock Text="Tipos de Cuenta" FontWeight="Bold" FontSize="16" TextAlignment="Center"/>
-                        <TextBlock Text="Simple 1" FontSize="11" Foreground="#8898AA" HorizontalAlignment="Center" Margin="0,5,0,0"/>
-                    </StackPanel>
-                </Button>
+                    <!-- TIPOS DE CUENTA -->
+                    <Button Style="{StaticResource ModuleCardStyle}" Click="BtnTipoCuenta_Click">
+                        <StackPanel>
+                            <TextBlock Text="📋" FontSize="48" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                            <TextBlock Text="Tipos de Cuenta" FontWeight="Bold" FontSize="18" TextAlignment="Center"/>
+                            <TextBlock Text="Simple 1" FontSize="11" Opacity="0.6" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Button>
 
-                <!-- PANTALLA SIMPLE 2 -->
-                <Button Style="{StaticResource ModuleCardStyle}" Click="BtnCuenta_Click">
-                    <StackPanel>
-                        <TextBlock Text="💰" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,10"/>
-                        <TextBlock Text="Plan de Cuentas" FontWeight="Bold" FontSize="16" TextAlignment="Center"/>
-                        <TextBlock Text="Simple 2" FontSize="11" Foreground="#8898AA" HorizontalAlignment="Center" Margin="0,5,0,0"/>
-                    </StackPanel>
-                </Button>
+                    <!-- PLAN DE CUENTAS -->
+                    <Button Style="{StaticResource ModuleCardStyle}" Click="BtnCuenta_Click">
+                        <StackPanel>
+                            <TextBlock Text="💰" FontSize="48" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                            <TextBlock Text="Plan de Cuentas" FontWeight="Bold" FontSize="18" TextAlignment="Center"/>
+                            <TextBlock Text="Simple 2" FontSize="11" Opacity="0.6" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Button>
 
-                <!-- PANTALLA COMPLEJA -->
-                <Button Style="{StaticResource ModuleCardStyle}" Click="BtnComprobante_Click">
-                    <StackPanel>
-                        <TextBlock Text="📝" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,10"/>
-                        <TextBlock Text="Comprobantes" FontWeight="Bold" FontSize="16" TextAlignment="Center"/>
-                        <TextBlock Text="Compleja" FontSize="11" Foreground="#8898AA" HorizontalAlignment="Center" Margin="0,5,0,0"/>
-                    </StackPanel>
-                </Button>
+                    <!-- COMPROBANTES -->
+                    <Button Style="{StaticResource ModuleCardStyle}" Click="BtnComprobante_Click">
+                        <StackPanel>
+                            <TextBlock Text="📝" FontSize="48" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                            <TextBlock Text="Comprobantes" FontWeight="Bold" FontSize="18" TextAlignment="Center"/>
+                            <TextBlock Text="Compleja" FontSize="11" Opacity="0.6" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Button>
 
-                <!-- REPORTE 1 -->
-                <Button Style="{StaticResource ModuleCardStyle}" Click="BtnBalanceGeneral_Click">
-                    <StackPanel>
-                        <TextBlock Text="📊" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,10"/>
-                        <TextBlock Text="Balance General" FontWeight="Bold" FontSize="16" TextAlignment="Center"/>
-                        <TextBlock Text="Reporte 1" FontSize="11" Foreground="#8898AA" HorizontalAlignment="Center" Margin="0,5,0,0"/>
-                    </StackPanel>
-                </Button>
+                    <!-- BALANCE GENERAL -->
+                    <Button Style="{StaticResource ModuleCardStyle}" Click="BtnBalanceGeneral_Click">
+                        <StackPanel>
+                            <TextBlock Text="📊" FontSize="48" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                            <TextBlock Text="Balance General" FontWeight="Bold" FontSize="18" TextAlignment="Center"/>
+                            <TextBlock Text="Reporte 1" FontSize="11" Opacity="0.6" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Button>
 
-                <!-- REPORTE 2 -->
-                <Button Style="{StaticResource ModuleCardStyle}" Click="BtnEstadoResultados_Click">
-                    <StackPanel>
-                        <TextBlock Text="💹" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,10"/>
-                        <TextBlock Text="Estado de Resultados" FontWeight="Bold" FontSize="16" TextAlignment="Center"/>
-                        <TextBlock Text="Reporte 2" FontSize="11" Foreground="#8898AA" HorizontalAlignment="Center" Margin="0,5,0,0"/>
-                    </StackPanel>
-                </Button>
+                    <!-- ESTADO DE RESULTADOS -->
+                    <Button Style="{StaticResource ModuleCardStyle}" Click="BtnEstadoResultados_Click">
+                        <StackPanel>
+                            <TextBlock Text="💹" FontSize="48" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                            <TextBlock Text="Estado de Resultados" FontWeight="Bold" FontSize="18" TextAlignment="Center"/>
+                            <TextBlock Text="Reporte 2" FontSize="11" Opacity="0.6" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Button>
 
-            </UniformGrid>
+                </UniformGrid>
+            </ScrollViewer>
 
             <!-- FOOTER -->
-            <Button Grid.Row="2" Content="Volver al Menú Principal" 
-                    HorizontalAlignment="Center" VerticalAlignment="Bottom"
-                    Foreground="#FF6B6B" Background="Transparent" BorderThickness="0" Cursor="Hand" FontWeight="Bold"
-                    Click="BtnVolver_Click" Margin="0,20,0,0"/>
+            <Grid Grid.Row="2" Margin="30,10,30,20">
+                <Button Content="← Volver al Menú Principal" 
+                        HorizontalAlignment="Center"
+                        Style="{StaticResource LogoutButtonStyle}"
+                        Click="BtnVolver_Click"/>
+            </Grid>
         </Grid>
     </Border>
 </Window>
