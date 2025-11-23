@@ -19,9 +19,6 @@ namespace ClientWPF
             // Limpiamos el rol por si viene con espacios o minúsculas
             string rolSeguro = rol?.Trim().ToUpper();
 
-            // DEBUG (Opcional): Si quieres ver qué rol llegó, descomenta esto:
-            // MessageBox.Show($"Rol detectado: '{rolSeguro}'");
-
             if (rolSeguro != "ADMIN")
             {
                 // Si NO es ADMIN, ocultamos el botón a la fuerza
@@ -55,6 +52,26 @@ namespace ClientWPF
             this.Close();
         }
 
+        // --- BOTONES DE VENTANA (NUEVOS) ---
+
+        private void BtnMinimize_Click(object sender, RoutedEventArgs e)
+        {
+            this.WindowState = WindowState.Minimized;
+        }
+
+        private void BtnMaximize_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.WindowState == WindowState.Normal)
+                this.WindowState = WindowState.Maximized;
+            else
+                this.WindowState = WindowState.Normal;
+        }
+
+        private void BtnClose_Click(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Shutdown();
+        }
+
         // --- BOTONES DE MÓDULOS ---
         private void BtnSeguridad_Click(object sender, RoutedEventArgs e)
         {
@@ -63,9 +80,13 @@ namespace ClientWPF
         }
 
         // Placeholders para los otros botones
-        private void BtnContabilidad_Click(object sender, RoutedEventArgs e) { MessageBox.Show("Módulo Contabilidad..."); }
-        private void BtnActivos_Click(object sender, RoutedEventArgs e) { MessageBox.Show("Módulo Activos..."); }
-        private void BtnMantenimiento_Click(object sender, RoutedEventArgs e) { MessageBox.Show("Módulo Mantenimiento..."); }
-        private void BtnBiblioteca_Click(object sender, RoutedEventArgs e) { MessageBox.Show("Módulo Biblioteca..."); }
+        private void BtnContabilidad_Click(object sender, RoutedEventArgs e) { MessageBox.Show("Módulo Contabilidad...", "Información"); }
+        private void BtnActivos_Click(object sender, RoutedEventArgs e) { MessageBox.Show("Módulo Activos...", "Información"); }
+        private void BtnMantenimiento_Click(object sender, RoutedEventArgs e) {
+            MantenimientoView view = new MantenimientoView();
+            view.ShowDialog();
+
+        }
+        private void BtnBiblioteca_Click(object sender, RoutedEventArgs e) { MessageBox.Show("Módulo Biblioteca...", "Información"); }
     }
 }

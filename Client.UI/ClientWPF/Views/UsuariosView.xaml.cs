@@ -39,11 +39,14 @@ namespace ClientWPF.Views
             txtUser.Text = "";
             txtPass.Text = "";
             txtNombre.Text = "";
-            txtRol.Text = "";
+
+            // Reseteamos el Combo al valor por defecto (Usuario Común)
+            cboRol.SelectedIndex = 0;
+
             txtUser.Focus();
         }
 
-        // --- BOTÓN GUARDAR (INSERTA O MODIFICA SEGÚN ID) ---
+        // --- BOTÓN GUARDAR (CON LÓGICA DE COMBOBOX) ---
         private void BtnGuardar_Click(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrWhiteSpace(txtUser.Text) || string.IsNullOrWhiteSpace(txtPass.Text))
@@ -52,11 +55,10 @@ namespace ClientWPF.Views
                 return;
             }
 
-            if (!int.TryParse(txtRol.Text, out int rolId))
-            {
-                MessageBox.Show("El Rol ID debe ser un número (1 o 2).");
-                return;
-            }
+            // OBTENER ROL DEL COMBOBOX
+            // Usamos la propiedad 'Tag' que definimos en el XAML (1 o 2)
+            ComboBoxItem itemSeleccionado = (ComboBoxItem)cboRol.SelectedItem;
+            int rolId = int.Parse(itemSeleccionado.Tag.ToString());
 
             var usuario = new UsuarioDTO
             {
@@ -83,25 +85,33 @@ namespace ClientWPF.Views
             Limpiar();
         }
 
-        // --- BOTÓN EDITAR (EN LA FILA) ---
+        // --- SELECCIONAR FILA PARA EDITAR ---
         private void BtnEditarFila_Click(object sender, RoutedEventArgs e)
         {
-            // Truco para obtener el dato de la fila donde se hizo clic
             var boton = sender as Button;
             var usuarioFila = boton.DataContext as UsuarioDTO;
 
             if (usuarioFila != null)
             {
-                // Llenamos el formulario con los datos de esa fila
+                // Llenamos el formulario
                 idSeleccionado = usuarioFila.UsuarioId;
                 txtUser.Text = usuarioFila.NombreUsuario;
-                txtPass.Text = usuarioFila.Clave; // Nota: En prod no se debería mostrar la clave
+                txtPass.Text = usuarioFila.Clave;
                 txtNombre.Text = usuarioFila.NombreCompleto;
-                txtRol.Text = usuarioFila.RolId.ToString();
+
+                // SELECCIONAR EL ROL CORRECTO EN EL COMBO
+                foreach (ComboBoxItem item in cboRol.Items)
+                {
+                    if (item.Tag.ToString() == usuarioFila.RolId.ToString())
+                    {
+                        cboRol.SelectedItem = item;
+                        break;
+                    }
+                }
             }
         }
 
-        // --- BOTÓN ELIMINAR (EN LA FILA) ---
+        // --- BOTÓN ELIMINAR ---
         private void BtnEliminarFila_Click(object sender, RoutedEventArgs e)
         {
             var boton = sender as Button;
@@ -120,19 +130,16 @@ namespace ClientWPF.Views
             }
         }
 
-        // --- BOTÓN RECARGAR (HEADER) ---
         private void BtnRecargar_Click(object sender, RoutedEventArgs e)
         {
             CargarDatos();
         }
 
-        // --- BOTÓN CERRAR ---
         private void BtnCerrar_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
         }
 
-        // --- ARRASTRAR VENTANA ---
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.LeftButton == MouseButtonState.Pressed)
