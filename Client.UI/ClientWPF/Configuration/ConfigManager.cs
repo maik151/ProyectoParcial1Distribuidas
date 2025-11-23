@@ -47,5 +47,23 @@ namespace ClientWPF.Configuration
                 catch { return 9001; }
             }
         }
+        // ========== CONTABILIDAD ========== ✅ NUEVO
+        public static string IpContabilidad
+        {
+            get
+            {
+                try { return _config["Endpoints:IpContabilidad"]; }
+                catch { MessageBox.Show("No se encuentra 'IpContabilidad'"); return "127.0.0.1"; }
+            }
+        }
+
+        public static int PuertoContabilidad
+        {
+            get
+            {
+                try { return int.Parse(_config["Endpoints:PuertoContabilidad"]); }
+                catch { MessageBox.Show("No se encuentra 'PuertoContabilidad'"); return 8002; }
+            }
+        }
     }
 }

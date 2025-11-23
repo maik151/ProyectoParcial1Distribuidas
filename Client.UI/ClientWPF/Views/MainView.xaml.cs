@@ -78,15 +78,27 @@ namespace ClientWPF
             UsuariosView view = new UsuariosView();
             view.ShowDialog();
         }
+        // ✅ MÓDULO CONTABILIDAD (ACTUALIZADO)
+        private void BtnContabilidad_Click(object sender, RoutedEventArgs e)
+        {
+            var menuContabilidad = new MenuContabilidad();
+            menuContabilidad.ShowDialog();
+        }
 
         // Placeholders para los otros botones
-        private void BtnContabilidad_Click(object sender, RoutedEventArgs e) { MessageBox.Show("Módulo Contabilidad...", "Información"); }
-        private void BtnActivos_Click(object sender, RoutedEventArgs e) { MessageBox.Show("Módulo Activos...", "Información"); }
-        private void BtnMantenimiento_Click(object sender, RoutedEventArgs e) {
-            MantenimientoView view = new MantenimientoView();
-            view.ShowDialog();
-
+        private void BtnActivos_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Módulo Activos - En construcción", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
         }
-        private void BtnBiblioteca_Click(object sender, RoutedEventArgs e) { MessageBox.Show("Módulo Biblioteca...", "Información"); }
+
+        private void BtnMantenimiento_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Módulo Mantenimiento - En construcción", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void BtnBiblioteca_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Módulo Biblioteca - En construcción", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
     }
 }
