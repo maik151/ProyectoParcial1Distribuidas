@@ -5,11 +5,11 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using ClientWPF.Controllers;
-using Entity;
+using Entity; // Para ItemComboDTO
 
 namespace ClientWPF.Views
 {
-    // Clase auxiliar para mostrar en la grilla
+    // Clase auxiliar para mostrar en la grilla de detalles
     public class DetalleVisual
     {
         public long ActivoId { get; set; }
@@ -24,36 +24,46 @@ namespace ClientWPF.Views
         MantenimientoController controller = new MantenimientoController();
         List<DetalleVisual> listaDetalles = new List<DetalleVisual>();
 
+        // Listas completas para permitir filtrado en el cliente
+        private List<ItemComboDTO> listaActividadesFull = new List<ItemComboDTO>();
+        private List<ItemComboDTO> listaActivosFull = new List<ItemComboDTO>();
+
         public MantenimientoView()
         {
             InitializeComponent();
-            CargarCombos();
+            CargarCombos(); // Carga inicial de datos
             dpFecha.SelectedDate = DateTime.Now;
         }
 
-        // --- CARGA INICIAL ---
+        // --- CARGA DE DATOS (ACTIVOS Y ACTIVIDADES) ---
         void CargarCombos()
         {
             try
             {
-                // Cargar Activos
-                var activos = controller.ListarActivos();
-                cboActivo.ItemsSource = activos;
+                // 1. Activos
+                listaActivosFull = controller.ListarActivos();
+
+                cboActivo.ItemsSource = listaActivosFull;
                 cboActivo.DisplayMemberPath = "Descripcion";
                 cboActivo.SelectedValuePath = "Id";
-                gridActivos.ItemsSource = activos; // Llenar también la tabla de la pestaña 2
 
-                // Cargar Actividades
-                var actividades = controller.ListarActividades();
-                cboActividad.ItemsSource = actividades;
+                gridActivos.ItemsSource = listaActivosFull; // Llenar tabla pestaña 2
+
+                // 2. Actividades
+                listaActividadesFull = controller.ListarActividades();
+
+                cboActividad.ItemsSource = listaActividadesFull;
                 cboActividad.DisplayMemberPath = "Descripcion";
                 cboActividad.SelectedValuePath = "Id";
-                gridActividades.ItemsSource = actividades; // Llenar también la tabla de la pestaña 2
+
+                gridActividades.ItemsSource = listaActividadesFull; // Llenar tabla pestaña 2
             }
             catch { }
         }
 
-        // --- PESTAÑA 1: REGISTRO ---
+        // =================================================
+        // PESTAÑA 1: REGISTRO (TRANSACCIÓN)
+        // =================================================
 
         private void BtnAgregar_Click(object sender, RoutedEventArgs e)
         {
@@ -132,7 +142,19 @@ namespace ClientWPF.Views
             }
         }
 
-        // --- PESTAÑA 2: CATÁLOGOS ---
+        // =================================================
+        // PESTAÑA 2: CATÁLOGOS (CRUD COMPLETO)
+        // =================================================
+
+        // --- ACTIVIDADES ---
+
+        private void BtnNuevaActividad_Click(object sender, RoutedEventArgs e)
+        {
+            txtCodAct.Text = "";
+            txtNomAct.Text = "";
+            txtCodAct.IsEnabled = true; // Permitir editar código
+            txtCodAct.Focus();
+        }
 
         private void BtnGuardarActividad_Click(object sender, RoutedEventArgs e)
         {
@@ -147,9 +169,52 @@ namespace ClientWPF.Views
 
             if (resp.Exito)
             {
-                txtCodAct.Text = ""; txtNomAct.Text = "";
-                CargarCombos();
+                BtnNuevaActividad_Click(null, null); // Limpiar
+                CargarCombos(); // Recargar tabla y combo
             }
+        }
+
+        private void BtnEditarActividad_Click(object sender, RoutedEventArgs e)
+        {
+            var boton = sender as Button;
+            // Obtenemos el objeto de la fila
+            if (boton.DataContext is ItemComboDTO item)
+            {
+                txtCodAct.Text = item.Id;
+                txtNomAct.Text = item.Descripcion;
+                txtCodAct.IsEnabled = false; // Bloquear PK al editar
+            }
+        }
+
+        private void BtnEliminarActividad_Click(object sender, RoutedEventArgs e)
+        {
+            var boton = sender as Button;
+            if (boton.DataContext is ItemComboDTO item)
+            {
+                if (MessageBox.Show($"¿Eliminar actividad '{item.Descripcion}'?", "Confirmar", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                {
+                    var resp = controller.EliminarActividad(item.Id);
+                    MessageBox.Show(resp.Mensaje);
+
+                    if (resp.Exito) CargarCombos();
+                }
+            }
+        }
+
+        private void TxtBuscarActividad_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            // Filtrado local en la lista en memoria
+            string filtro = txtBuscarActividad.Text.ToLower();
+            gridActividades.ItemsSource = listaActividadesFull
+                .Where(x => x.Descripcion.ToLower().Contains(filtro) || x.Id.ToLower().Contains(filtro))
+                .ToList();
+        }
+
+        // --- ACTIVOS (Simplificado) ---
+
+        private void BtnNuevoActivo_Click(object sender, RoutedEventArgs e)
+        {
+            txtIdActivo.Text = ""; txtNomActivo.Text = ""; txtIdActivo.IsEnabled = true;
         }
 
         private void BtnGuardarActivo_Click(object sender, RoutedEventArgs e)
@@ -157,7 +222,34 @@ namespace ClientWPF.Views
             MessageBox.Show("Función de crear activo local pendiente.");
         }
 
-        // --- PESTAÑA 3: REPORTES ---
+        private void BtnEditarActivo_Click(object sender, RoutedEventArgs e)
+        {
+            var boton = sender as Button;
+            if (boton.DataContext is ItemComboDTO item)
+            {
+                txtIdActivo.Text = item.Id;
+                txtNomActivo.Text = item.Descripcion;
+                txtIdActivo.IsEnabled = false;
+            }
+        }
+
+        private void BtnEliminarActivo_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Eliminar Activo pendiente en Servidor");
+        }
+
+        private void TxtBuscarActivo_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            string filtro = txtBuscarActivo.Text.ToLower();
+            gridActivos.ItemsSource = listaActivosFull
+                .Where(x => x.Descripcion.ToLower().Contains(filtro) || x.Id.ToLower().Contains(filtro))
+                .ToList();
+        }
+
+
+        // =================================================
+        // PESTAÑA 3: REPORTES
+        // =================================================
 
         private void BtnRepGastos_Click(object sender, RoutedEventArgs e)
         {
@@ -169,8 +261,11 @@ namespace ClientWPF.Views
             MessageBox.Show("Matriz Cruzada: Pendiente de implementación.");
         }
 
-        // --- UTILIDADES VENTANA ---
+        // =================================================
+        // UTILIDADES VENTANA
+        // =================================================
         private void BtnCerrar_Click(object sender, RoutedEventArgs e) { this.Close(); }
+        private void BtnRecargar_Click(object sender, RoutedEventArgs e) { CargarCombos(); }
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
