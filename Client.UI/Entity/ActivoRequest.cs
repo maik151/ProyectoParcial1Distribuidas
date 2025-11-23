@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Entity
+﻿namespace Entity
 {
     public class ActivoRequest : PeticionBase
     {
-        public ActivoDTO Activo { get; set; }
+        public ActivoDTO? Activo { get; set; }
+
+        // ✅ necesario para Listar con filtro
+        public string? FiltroNombre { get; set; }
     }
 }
+

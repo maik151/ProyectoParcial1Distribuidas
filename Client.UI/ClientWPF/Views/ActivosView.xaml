@@ -1,0 +1,137 @@
+﻿<Window x:Class="ClientWPF.Views.ActivosView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Módulo de Activos"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        Background="#F2F0E9"
+        Width="1050" Height="650">
+
+    <Border Background="#F2F0E9" BorderBrush="#023E38" BorderThickness="3" CornerRadius="12">
+        <Grid Margin="10">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Encabezado -->
+            <Grid Background="#023E38" Height="50">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="40"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="Módulo de Activos"
+                           VerticalAlignment="Center"
+                           Margin="15,0,0,0"
+                           FontSize="20"
+                           Foreground="White"
+                           FontWeight="Bold"/>
+
+                <Button Grid.Column="1"
+                        Content="X"
+                        Background="Transparent"
+                        Foreground="White"
+                        BorderBrush="{x:Null}"
+                        FontWeight="Bold"
+                        Click="BtnCerrar_Click"/>
+            </Grid>
+
+            <!-- Panel de formularios -->
+            <StackPanel Grid.Row="1"
+                        Orientation="Vertical"
+                        Margin="10"
+                        Background="#F2F0E9">
+
+                <TextBlock Text="Gestión de Activos"
+                           FontSize="18"
+                           FontWeight="Bold"
+                           Foreground="#023E38"
+                           Margin="0 5"/>
+
+                <!-- Formulario -->
+                <Grid Margin="0 10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="200"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+
+                        <TextBlock Text="ID" Margin="0 2"/>
+                        <TextBox x:Name="txtActivoId" IsEnabled="False"/>
+
+                        <TextBlock Text="Nombre" Margin="0 10 0 2"/>
+                        <TextBox x:Name="txtActivoNombre"/>
+
+                        <TextBlock Text="Tipo Activo" Margin="0 10 0 2"/>
+                        <ComboBox x:Name="cboTipo"
+                                  DisplayMemberPath="Nombre"
+                                  SelectedValuePath="Codigo"/>
+
+                        <TextBlock Text="Valor Compra" Margin="0 10 0 2"/>
+                        <TextBox x:Name="txtValorCompra"/>
+
+                        <TextBlock Text="Fecha Adquisición" Margin="0 10 0 2"/>
+                        <DatePicker x:Name="dpFechaAdquisicion"/>
+
+                        <TextBlock Text="Periodos Depreciación" Margin="0 10 0 2"/>
+                        <TextBox x:Name="txtPeriodos"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Margin="20 0">
+
+                        <Button Content="Guardar"
+                                x:Name="btnGuardar"
+                                Height="35"
+                                Margin="0 10 0 0"
+                                Background="#023E38"
+                                Foreground="White"
+                                Click="BtnGuardar_Click"/>
+
+                        <Button Content="Eliminar"
+                                x:Name="btnEliminar"
+                                Height="35"
+                                Background="#D92027"
+                                Foreground="White"
+                                Click="BtnEliminar_Click"
+                                Margin="0 10 0 0"/>
+
+                        <Button Content="Nuevo"
+                                Height="35"
+                                Background="#7A7A7A"
+                                Foreground="White"
+                                Click="BtnNuevo_Click"
+                                Margin="0 10 0 0"/>
+                    </StackPanel>
+
+                </Grid>
+            </StackPanel>
+
+            <!-- Tabla -->
+            <DataGrid x:Name="gridActivos"
+                      Grid.Row="2"
+                      AutoGenerateColumns="False"
+                      SelectionMode="Single"
+                      IsReadOnly="True"
+                      Background="#FFFFFF"
+                      GridLinesVisibility="None"
+                      SelectionChanged="GridActivos_SelectionChanged">
+
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="ID" Binding="{Binding ActivoId}" Width="60"/>
+                    <DataGridTextColumn Header="Nombre" Binding="{Binding Nombre}" Width="*"/>
+                    <DataGridTextColumn Header="Tipo" Binding="{Binding TipoActivoCodigo}" Width="120"/>
+                    <DataGridTextColumn Header="Valor" Binding="{Binding ValorCompra}" Width="100"/>
+                    <DataGridTextColumn Header="Fecha" Binding="{Binding FechaAdquisicion}" Width="140"/>
+                    <DataGridTextColumn Header="Periodos" Binding="{Binding PeriodosDepreciacionTotal}" Width="90"/>
+                </DataGrid.Columns>
+            </DataGrid>
+
+        </Grid>
+    </Border>
+
+</Window>
+
